@@ -5,6 +5,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Story — Untitled Game Reference</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* lord card grid */
+    .lord-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    @media (max-width: 860px) { .lord-grid { grid-template-columns: 1fr; } }
+
+    .lord-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .lord-card:hover { border-color: var(--border-gold); }
+    .lord-card.betrayer { border-color: #4a1a1a; background: linear-gradient(135deg, var(--bg-card), rgba(139,32,32,0.06)); }
+
+    .lord-name    { font-family: var(--font-serif); font-size: 1.1rem; color: var(--gold-light); margin-bottom:0.1rem; }
+    .lord-house   { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 0.1rem; }
+    .lord-location{ font-size: 0.78rem; color: var(--text-dim); font-style: italic; margin-bottom: 0.65rem; }
+    .lord-bg      { font-size: 0.84rem; color: var(--text-dim); line-height: 1.55; margin-bottom: 0.65rem; }
+    .lord-contrib { font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.55rem; }
+    .lord-contrib strong { color: var(--text-dim); }
+
+    /* betrayal arc */
+    .betrayal-item {
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-raised);
+      border: 1px solid #3a1a1a;
+      border-radius: var(--radius-md);
+      margin-bottom: 0.75rem;
+    }
+    .betrayal-num {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      color: var(--red-light);
+      line-height: 1;
+      padding-top: 0.1rem;
+    }
+    .betrayal-title { font-family: var(--font-serif); color: var(--text-white); margin-bottom: 0.2rem; font-size: 0.95rem; }
+    .betrayal-desc  { font-size: 0.83rem; color: var(--text-dim); }
+
+    /* kalen arc beats */
+    .arc-beat {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .arc-beat:last-child { border-bottom: none; }
+    .arc-stage { color: var(--gold); font-family: var(--font-serif); }
+
+    /* speech */
+    .speech-line {
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--text);
+      font-style: italic;
+    }
+    .speech-line:last-child { border-bottom: none; }
+    .speech-line.climax { color: var(--gold-light); font-size: 1.05rem; font-weight: 600; letter-spacing: 0.04em; }
+
+    /* open questions */
+    .question-item {
+      padding: 0.6rem 0.85rem;
+      border-left: 3px solid var(--border-mid);
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
 
@@ -28,16 +104,20 @@
 <div class="page-container">
   <div class="page-header">
     <h1>Story</h1>
-    <div class="subtitle">Characters, story beats, lord backgrounds, and the threads between them</div>
+    <div class="subtitle">Characters, arcs, lord backgrounds, and the threads between them</div>
     <div class="living-doc-note">⚑ Living Document — update as game develops</div>
   </div>
 
   <!-- Quick jump -->
   <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem;">
-    <a href="#characters" class="filter-btn active">Characters</a>
-    <a href="#story-beats" class="filter-btn active">Story Beats</a>
+    <a href="#characters"       class="filter-btn active">Characters</a>
+    <a href="#story-beats"      class="filter-btn active">Story Beats</a>
     <a href="#lord-backgrounds" class="filter-btn active">Lord Backgrounds</a>
-    <a href="#themes" class="filter-btn active">Themes</a>
+    <a href="#mesterby-arc"     class="filter-btn active">Mesterby Arc</a>
+    <a href="#kalen-arc"        class="filter-btn active">Kalen Arc</a>
+    <a href="#john-speech"      class="filter-btn active">John's Last Speech</a>
+    <a href="#themes"           class="filter-btn active">Themes</a>
+    <a href="#open-questions"   class="filter-btn active">Open Questions</a>
   </div>
 
   <!-- ── CHARACTERS ──────────────────────────────────────── -->
@@ -49,31 +129,35 @@
   <!-- ── STORY BEATS ─────────────────────────────────────── -->
   <section id="story-beats" style="margin-top:3rem;">
     <h2 style="margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">Story Beats</h2>
-    <p style="color:var(--text-dim);margin-bottom:1.5rem;font-size:0.9rem;">Key moments in sequence — not a full walkthrough, but the spine.</p>
+    <p style="color:var(--text-dim);margin-bottom:1.5rem;font-size:0.9rem;">Key moments in sequence — the spine, not a full walkthrough.</p>
     <div id="beats-container"></div>
   </section>
 
   <!-- ── LORD BACKGROUNDS ────────────────────────────────── -->
   <section id="lord-backgrounds" style="margin-top:3rem;">
-    <h2 style="margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">Lord Backgrounds</h2>
+    <h2 style="margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">Lord Backgrounds</h2>
+    <p style="color:var(--text-dim);margin-bottom:1.5rem;font-size:0.9rem;">Each lord who can pledge to the coalition — their house, history, and what they bring.</p>
+    <div id="lord-grid-container"></div>
+  </section>
 
-    <div class="collapsible open">
-      <button class="collapsible-header" onclick="toggleCollapsible(this)">
-        <span class="ch-left"><span>📜</span><span>All Lords — Quick Reference</span></span>
-        <span class="collapsible-arrow">▶</span>
-      </button>
-      <div class="collapsible-body" style="padding:0;">
-        <table class="item-table">
-          <thead>
-            <tr>
-              <th style="width:200px;">Lord</th>
-              <th>Background</th>
-            </tr>
-          </thead>
-          <tbody id="lords-table-body"></tbody>
-        </table>
-      </div>
-    </div>
+  <!-- ── MESTERBY BETRAYAL ARC ───────────────────────────── -->
+  <section id="mesterby-arc" style="margin-top:3rem;">
+    <h2 style="margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:2px solid #4a1a1a;">
+      <span style="color:var(--red-light);">⚠</span> The Mesterby Betrayal Arc
+    </h2>
+    <div id="mesterby-container"></div>
+  </section>
+
+  <!-- ── KALEN ARC ───────────────────────────────────────── -->
+  <section id="kalen-arc" style="margin-top:3rem;">
+    <h2 style="margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">The Kalen Arc</h2>
+    <div id="kalen-container"></div>
+  </section>
+
+  <!-- ── JOHN WINTERS LAST SPEECH ────────────────────────── -->
+  <section id="john-speech" style="margin-top:3rem;">
+    <h2 style="margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">John Winters — The Last Speech</h2>
+    <div id="speech-container"></div>
   </section>
 
   <!-- ── THEMES ──────────────────────────────────────────── -->
@@ -99,34 +183,6 @@
 
     <div class="collapsible open">
       <button class="collapsible-header" onclick="toggleCollapsible(this)">
-        <span class="ch-left"><span>🗡</span><span>The Betrayal Structure</span></span>
-        <span class="collapsible-arrow">▶</span>
-      </button>
-      <div class="collapsible-body">
-        <p>Mesterby's betrayals are <strong>three</strong> and are revealed incrementally. None come all at once. Each one reframes what came before:</p>
-        <ul>
-          <li><strong>Betrayal One</strong> — TBD (revealed first, smaller)</li>
-          <li><strong>Betrayal Two</strong> — TBD (escalation)</li>
-          <li><strong>Betrayal Three</strong> — Gave demons the secret passage to Vaelen's blindspot during the Demon War. Killed Vaelen. Broke Erwin's family. Led to the Dwarf Mountain being falsely blamed for years.</li>
-        </ul>
-        <p class="text-dim">The third betrayal is the one that matters for Erwin's arc — why D6 requires completing the Mesterby quest first.</p>
-      </div>
-    </div>
-
-    <div class="collapsible open">
-      <button class="collapsible-header" onclick="toggleCollapsible(this)">
-        <span class="ch-left"><span>⚡</span><span>Mason vs. The Player — The Coalition Moment</span></span>
-        <span class="collapsible-arrow">▶</span>
-      </button>
-      <div class="collapsible-body">
-        <p>At the coalition assembly, the lords gather to pledge. Kalen — who has just become Ashborn chief — enters the room. Mason Winters is present. Kalen walks <em>past Mason</em> and pledges to the player directly.</p>
-        <p>Mason is the heir to the throne by blood. The player is not. Kalen's choice is deliberate — he's pledging to the person who actually did the work. Mason notices. He says nothing.</p>
-        <p class="text-dim">The game never comments on this directly. The player sees it. Mason sees it. Kalen walks past.</p>
-      </div>
-    </div>
-
-    <div class="collapsible open">
-      <button class="collapsible-header" onclick="toggleCollapsible(this)">
         <span class="ch-left"><span>💬</span><span>Names and Withheld Information</span></span>
         <span class="collapsible-arrow">▶</span>
       </button>
@@ -141,6 +197,18 @@
 
     <div class="collapsible open">
       <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚡</span><span>Mason vs. The Player — The Coalition Moment</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>At the coalition assembly, the lords gather to pledge. Kalen — who has just become Ashborn chief — enters the room. Mason Winters is present. Kalen walks <em>past Mason</em> and pledges to the player directly.</p>
+        <p>Mason is the heir to the throne by blood. The player is not. Kalen's choice is deliberate — in Ashborn culture loyalty flows to the person who earned it, not to titles. Mason says nothing. He understands.</p>
+        <p class="text-dim">The game never comments on this directly. The player sees it. Mason sees it. Kalen walks past.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
         <span class="ch-left"><span>⚒</span><span>Aldric's Choice</span></span>
         <span class="collapsible-arrow">▶</span>
       </button>
@@ -148,9 +216,16 @@
         <p>John's last request to Aldric was simple: find Mason. Bring him home. Aldric ignored it. He charged to die beside his king instead — the loyal soldier's death over the harder task of delivering news to a boy who didn't know he was a prince.</p>
         <p>He wrote a letter of apology that was never delivered. He still has it. He apologised with a tear in one eye. John noticed.</p>
         <p>Aldric cannot leave the burial site. He gives the player the letter and the Final Charge move. That's all he has left to give.</p>
-        <p class="text-dim">His arc is: the most loyal man in the kingdom was disloyal exactly once — and it was the thing that mattered most.</p>
+        <p class="text-dim">His arc: the most loyal man in the kingdom was disloyal exactly once — and it was the thing that mattered most.</p>
       </div>
     </div>
+  </section>
+
+  <!-- ── OPEN QUESTIONS ──────────────────────────────────── -->
+  <section id="open-questions" style="margin-top:3rem;">
+    <h2 style="margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:2px solid var(--border-mid);">Open Questions</h2>
+    <p style="color:var(--text-muted);margin-bottom:1.25rem;font-size:0.85rem;">Things not yet answered — decisions still to be made.</p>
+    <div id="questions-container"></div>
   </section>
 
 </div>
@@ -168,49 +243,187 @@ function toggleCollapsible(btn) {
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Characters ─────────────────────────────────────────
-  const charsContainer = document.getElementById('characters-container');
-  charsContainer.innerHTML = STORY.characters.map(char => `
-    <div class="character-card">
-      <div class="character-header">
-        <div style="flex:1;">
-          <h3 class="character-name">${char.name}</h3>
-          <div class="character-role">${char.role}</div>
-          <div style="margin-top:0.4rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
-            ${char.age ? `<span class="tag">Age: ${char.age}</span>` : ''}
-            <span class="tag">${char.status}</span>
+  document.getElementById('characters-container').innerHTML =
+    STORY.characters.map(char => `
+      <div class="character-card">
+        <div class="character-header">
+          <div style="flex:1;">
+            <h3 class="character-name">${char.name}</h3>
+            <div class="character-role">${char.role}</div>
+            <div style="margin-top:0.4rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+              ${char.age ? `<span class="tag">Age: ${char.age}</span>` : ''}
+              <span class="tag">${char.status}</span>
+            </div>
           </div>
         </div>
+        <div class="character-body">
+          <p style="color:var(--text-dim);margin-bottom:1rem;">${char.summary}</p>
+          <div class="section-label">Key Details</div>
+          <ul>${char.keyDetails.map(d => `<li>${d}</li>`).join('')}</ul>
+        </div>
       </div>
-      <div class="character-body">
-        <p style="color:var(--text-dim);margin-bottom:1rem;">${char.summary}</p>
-        <div class="section-label">Key Details</div>
-        <ul style="color:var(--text);">
-          ${char.keyDetails.map(d => `<li>${d}</li>`).join('')}
-        </ul>
-      </div>
-    </div>
-  `).join('');
+    `).join('');
 
   // ── Story Beats ────────────────────────────────────────
-  const beatsContainer = document.getElementById('beats-container');
-  beatsContainer.innerHTML = STORY.storyBeats.map((beat, i) => `
-    <div class="story-beat">
-      <div style="display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.4rem;">
-        <span style="font-family:var(--font-serif);font-size:1.1rem;color:var(--gold-dim);">${String(i+1).padStart(2,'0')}</span>
-        <div class="beat-title">${beat.title}</div>
+  document.getElementById('beats-container').innerHTML =
+    STORY.storyBeats.map((beat, i) => `
+      <div class="story-beat">
+        <div style="display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.4rem;">
+          <span style="font-family:var(--font-serif);font-size:1.1rem;color:var(--gold-dim);">${String(i+1).padStart(2,'0')}</span>
+          <div class="beat-title">${beat.title}</div>
+        </div>
+        <div style="font-size:0.88rem;color:var(--text-dim);">${beat.beat}</div>
       </div>
-      <div style="font-size:0.88rem;color:var(--text-dim);">${beat.beat}</div>
-    </div>
-  `).join('');
+    `).join('');
 
   // ── Lord Backgrounds ───────────────────────────────────
-  const lordsBody = document.getElementById('lords-table-body');
-  lordsBody.innerHTML = STORY.lordBackgrounds.map(l => `
-    <tr>
-      <td><span class="item-name">${l.lord}</span></td>
-      <td style="font-size:0.85rem;color:var(--text-dim);">${l.background}</td>
-    </tr>
-  `).join('');
+  document.getElementById('lord-grid-container').innerHTML = `
+    <div class="lord-grid">
+      ${STORY.lordBackgrounds.map(l => `
+        <div class="lord-card ${l.betrayer ? 'betrayer' : ''}">
+          <div class="lord-name">
+            ${l.lord}
+            ${l.betrayer ? '<span class="tag tag-unique" style="font-size:0.65rem;margin-left:0.4rem;">Betrayer</span>' : ''}
+          </div>
+          <div class="lord-house">${l.house || ''}</div>
+          <div class="lord-location">${l.location || ''}</div>
+          <div class="lord-bg">${l.background}</div>
+          ${l.coalitionContribution ? `
+            <div class="lord-contrib">
+              <strong>Coalition contribution:</strong> ${l.coalitionContribution}
+            </div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // ── Mesterby Betrayal Arc ─────────────────────────────
+  const mb = STORY.mesteryBetrayalArc;
+  document.getElementById('mesterby-container').innerHTML = `
+    <div class="info-box warn" style="margin-bottom:1.5rem;">${mb.summary}</div>
+
+    <div class="collapsible open gold">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🗡</span><span>The Three Betrayals</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        ${mb.threeBetravals.map(b => `
+          <div class="betrayal-item">
+            <div class="betrayal-num">${b.number}</div>
+            <div>
+              <div class="betrayal-title">${b.title}</div>
+              <div class="betrayal-desc">${b.description}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="collapsible open" style="margin-top:0.75rem;">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🔍</span><span>Evidence</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <ul>${mb.evidence.map(e => `<li style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.4rem;">${e}</li>`).join('')}</ul>
+      </div>
+    </div>
+
+    <div class="collapsible open" style="margin-top:0.75rem;">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚖</span><span>Mason's Choice</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
+          ${mb.masonChoice.map(c => `<span class="tag">${c}</span>`).join('')}
+        </div>
+        <div class="info-box note">${mb.mesterbySeal}</div>
+        <div style="margin-top:0.75rem;font-size:0.85rem;color:var(--text-dim);">
+          <strong style="color:var(--text);">Cascade effects:</strong> ${mb.cascadeEffects}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // ── Kalen Arc ─────────────────────────────────────────
+  const ka = STORY.kalenArc;
+  document.getElementById('kalen-container').innerHTML = `
+    <div class="info-box note" style="margin-bottom:1.5rem;">${ka.summary}</div>
+
+    <div class="grid-2" style="margin-bottom:1.5rem;">
+      <div class="card">
+        <div class="section-label">Kalen</div>
+        <p style="font-size:0.85rem;color:var(--text-dim);">${ka.kalenCharacter}</p>
+      </div>
+      <div class="card">
+        <div class="section-label">The Veteran</div>
+        <p style="font-size:0.85rem;color:var(--text-dim);">${ka.veteranCharacter}</p>
+      </div>
+    </div>
+
+    <div class="collapsible open gold">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>📋</span><span>Arc Beats</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">
+        <div style="padding:0.25rem 0;">
+          ${ka.arcBeats.map(b => `
+            <div class="arc-beat">
+              <span class="arc-stage">${b.stage}</span>
+              <span style="font-size:0.84rem;color:var(--text-dim);">${b.description}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="collapsible open" style="margin-top:0.75rem;">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚔</span><span>Iron Pass & After</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <div class="detail-grid">
+          <span class="detail-key">Iron Pass</span>       <span class="detail-val">${ka.ironPassDungeon}</span>
+          <span class="detail-key">After</span>           <span class="detail-val">${ka.afterIronPass}</span>
+          <span class="detail-key">Coalition</span>       <span class="detail-val">${ka.coalitionAssembly}</span>
+          <span class="detail-key">Barbarian</span>       <span class="detail-val">${ka.barbarianUnlock}</span>
+          <span class="detail-key">Followers</span>       <span class="detail-val">${ka.ashbornFollowers}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // ── John's Speech ─────────────────────────────────────
+  const sp = STORY.johnWintersLastSpeech;
+  document.getElementById('speech-container').innerHTML = `
+    <div class="info-box note" style="margin-bottom:1.25rem;">${sp.context}</div>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="section-label" style="margin-bottom:0.75rem;">The Speech</div>
+      ${sp.speech.map((line, i) => {
+        const isClimax = line.includes('KINGDOM') || line.includes('CHARGE');
+        return `<div class="speech-line ${isClimax ? 'climax' : ''}">${line}</div>`;
+      }).join('')}
+    </div>
+    <div class="info-box note" style="margin-bottom:0.75rem;">
+      <strong>Staging note:</strong> ${sp.note}
+    </div>
+    <div class="info-box note">
+      <strong>Aldric's note:</strong> ${sp.aldricNote}
+    </div>
+  `;
+
+  // ── Open Questions ─────────────────────────────────────
+  document.getElementById('questions-container').innerHTML =
+    STORY.openQuestions.map((q, i) => `
+      <div class="question-item">
+        <span style="color:var(--text-muted);font-style:normal;margin-right:0.5rem;">${String(i+1).padStart(2,'0')}.</span>
+        ${q.question}
+      </div>
+    `).join('');
 });
 </script>
 </body>

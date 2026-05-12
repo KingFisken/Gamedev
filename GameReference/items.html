@@ -128,47 +128,118 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('items-container');
 
   const sections = [
-    {
-      title: 'Legendary Items',
-      icon: '⭐',
-      items: ITEMS.legendary,
-      id: 'legendary',
-      open: true,
-    },
-    {
-      title: 'Evolution Tokens & Special Keys',
-      icon: '🔑',
-      items: ITEMS.evolution_tokens,
-      id: 'evo',
-      open: true,
-    },
-    {
-      title: 'Weapons',
-      icon: '⚔',
-      items: ITEMS.weapons,
-      id: 'weapons',
-      open: true,
-    },
-    {
-      title: 'Armour & Accessories',
-      icon: '🛡',
-      items: ITEMS.armor,
-      id: 'armor',
-      open: true,
-    },
-    {
-      title: 'Contracts & Recruitment Items',
-      icon: '📜',
-      items: ITEMS.contracts,
-      id: 'contracts',
-      open: true,
-    },
+    { title: 'Legendary Items',                 icon: '⭐', items: ITEMS.legendary,         id: 'legendary', open: true },
+    { title: 'Evolution Tokens & Special Keys', icon: '🔑', items: ITEMS.evolution_tokens,  id: 'evo',       open: true },
+    { title: 'Weapons',                         icon: '⚔', items: ITEMS.weapons,            id: 'weapons',   open: true },
+    { title: 'Armour & Accessories',            icon: '🛡', items: ITEMS.armor,              id: 'armor',     open: true },
+    { title: 'Contracts & Recruitment Items',   icon: '📜', items: ITEMS.contracts,          id: 'contracts', open: true },
   ];
 
   container.innerHTML = sections.map(s =>
     buildSection(s.title, s.icon, s.items, s.id, s.open)
-  ).join('');
+  ).join('') + buildForgeSection() + buildGeneralRewardsSection();
 });
+
+function buildForgeTable(pool) {
+  return `
+    <table class="item-table">
+      <thead><tr>
+        <th style="width:160px;">Item</th>
+        <th style="width:100px;">Type</th>
+        <th>Effect</th>
+        <th>Inputs (+ Cold Iron base)</th>
+      </tr></thead>
+      <tbody>
+        ${pool.map(item => `
+          <tr class="item-row" data-name="${item.name.toLowerCase()}" data-notes="${(item.effect||'').toLowerCase()}">
+            <td><span class="item-name legendary">${item.name}</span>
+              ${item.description ? `<div class="item-note" style="margin-top:0.2rem;font-style:italic;">${item.description}</div>` : ''}
+              ${item.notes && item.notes !== item.description ? `<div class="item-note" style="margin-top:0.15rem;">${item.notes}</div>` : ''}
+            </td>
+            <td><span class="tag">${item.type}</span></td>
+            <td class="item-note">${item.effect}</td>
+            <td class="item-note">${item.inputs ? item.inputs.join(' + ') : '—'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+}
+
+function buildForgeSection() {
+  const fi = ITEMS.forgeItems;
+  const ci = fi.coldIron;
+  return `
+    <div class="collapsible open" style="margin-bottom:1rem;" data-section="forge">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🔥</span><span>Legendary Forge System</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+
+        <div class="card card-gold" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <span class="card-icon">⚙</span>
+            <div>
+              <h4 class="card-title">${ci.name} <span class="tag tag-rare">${ci.rarity}</span></h4>
+              <div style="font-size:0.8rem;color:var(--text-muted);">Universal forge base ingredient</div>
+            </div>
+          </div>
+          <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.75rem;">${ci.description}</p>
+          <div class="detail-grid">
+            <span class="detail-key">Found at</span>
+            <span class="detail-val">${ci.foundAt.join(' · ')}</span>
+            <span class="detail-key">Scarcity</span>
+            <span class="detail-val">${ci.notes}</span>
+          </div>
+        </div>
+
+        <h3 style="margin-bottom:0.75rem;font-size:1.1rem;">Human Runesmith Pool</h3>
+        <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.75rem;">All outputs require Cold Iron as the base. Human Blacksmith → Armorer → Master Smith → Runesmith chain.</p>
+        <div class="card" style="padding:0;overflow:hidden;margin-bottom:1.5rem;">${buildForgeTable(fi.humanRunesmithPool)}</div>
+
+        <h3 style="margin-bottom:0.75rem;font-size:1.1rem;">Dwarf Runeforger Pool</h3>
+        <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.75rem;">Separate pool from human Runesmith. Dwarf Miner → Dwarf Smith → Master Dwarf Smith → Runeforger. Ancestral Anvil required (Act 3 item).</p>
+        <div class="card" style="padding:0;overflow:hidden;">${buildForgeTable(fi.dwarfRuneforgerPool)}</div>
+      </div>
+    </div>`;
+}
+
+function buildGeneralRewardsSection() {
+  const rows = ITEMS.generalRewards.map(r => `
+    <tr class="item-row" data-name="${r.name.toLowerCase()}" data-notes="${(r.effect||'').toLowerCase()}">
+      <td>
+        <span class="item-name legendary">${r.name}</span>
+        ${r.notes ? `<div class="item-note" style="margin-top:0.2rem;font-style:italic;">${r.notes}</div>` : ''}
+      </td>
+      <td><span class="tag">${r.type}</span></td>
+      <td class="item-note" style="font-size:0.75rem;color:var(--text-muted);">${r.general}<br><em>${r.forClass}</em></td>
+      <td class="item-note">${r.effect}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="collapsible open" style="margin-bottom:1rem;" data-section="generals">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⭐</span><span>Named General Rewards</span>
+          <span style="font-size:0.78rem;color:var(--text-muted);font-weight:normal;">(${ITEMS.generalRewards.length})</span>
+        </span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <table class="item-table">
+            <thead><tr>
+              <th style="width:160px;">Item</th>
+              <th style="width:110px;">Type</th>
+              <th style="width:170px;">Source / Class</th>
+              <th>Effect</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+}
 
 function filterItems() {
   const q = document.getElementById('item-search').value.toLowerCase().trim();

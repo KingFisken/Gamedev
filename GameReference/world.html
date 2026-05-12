@@ -38,6 +38,7 @@
     <a href="#routes" class="filter-btn active">Routes</a>
     <a href="#trolls" class="filter-btn active">Bridge Trolls</a>
     <a href="#dungeons" class="filter-btn active">Dungeons</a>
+    <a href="#demons" class="filter-btn active">Demon Encounters</a>
     <a href="#special" class="filter-btn active">Points of Interest</a>
   </div>
 
@@ -67,6 +68,12 @@
   <div class="world-section" id="dungeons">
     <h2 style="margin-bottom:1.25rem;">Dungeons</h2>
     <div id="dungeons-container"></div>
+  </div>
+
+  <!-- ── DEMON ENCOUNTERS ──────────────────────────────── -->
+  <div class="world-section" id="demons">
+    <h2 style="margin-bottom:1.25rem;">Demon Encounters</h2>
+    <div id="demon-container"></div>
   </div>
 
   <!-- ── SPECIAL LOCATIONS ─────────────────────────────── -->
@@ -223,6 +230,66 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
   `).join('');
+
+  // ── Demon Encounters ───────────────────────────────────
+  const demonContainer = document.getElementById('demon-container');
+  const de = WORLD.demonEncounters;
+
+  function demonTable(encounters, showMechanic) {
+    const extraCol = showMechanic
+      ? '<th>Unique Mechanic</th><th>Location</th>'
+      : '';
+    const rows = encounters.map(e => `
+      <tr>
+        <td><span class="item-name">${e.name}</span></td>
+        <td>${renderTypes(e.types)}</td>
+        <td class="item-note">${e.drop}</td>
+        ${showMechanic
+          ? `<td class="item-note">${e.uniqueMechanic || '—'}</td><td class="item-note">${e.location || '—'}</td>`
+          : `<td class="item-note">${e.notes || '—'}</td>`}
+      </tr>
+    `).join('');
+    return `
+      <table class="item-table">
+        <thead><tr>
+          <th style="width:190px;">Enemy</th>
+          <th style="width:180px;">Types</th>
+          <th>Drop</th>
+          ${extraCol}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  demonContainer.innerHTML = `
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>💀</span><span>Tier 1 — Common Demons</span>
+          <span style="font-size:0.78rem;color:var(--text-muted);font-weight:normal;">(${de.tier1.length} types)</span>
+        </span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">${demonTable(de.tier1, false)}</div>
+    </div>
+    <div class="collapsible open" style="margin-top:0.75rem;">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚔</span><span>Tier 2 — Elite Demons</span>
+          <span style="font-size:0.78rem;color:var(--text-muted);font-weight:normal;">(${de.tier2.length} types)</span>
+        </span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">${demonTable(de.tier2, false)}</div>
+    </div>
+    <div class="collapsible open" style="margin-top:0.75rem;">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⭐</span><span>Tier 3 — Named Lieutenants</span>
+          <span style="font-size:0.78rem;color:var(--text-muted);font-weight:normal;">(${de.tier3Named.length} types)</span>
+        </span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">${demonTable(de.tier3Named, true)}</div>
+    </div>
+  `;
 
   // ── Dungeons ───────────────────────────────────────────
   const dungeonsContainer = document.getElementById('dungeons-container');
