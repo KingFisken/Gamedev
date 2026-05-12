@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World — Untitled Game Reference</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="main-nav">
+  <div class="nav-logo">
+    <span class="logo-icon">⚔</span>
+    <span class="logo-text">Untitled Game</span>
+    <span class="logo-sub">Reference</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="classes.html">Classes</a></li>
+    <li><a href="followers.html">Followers</a></li>
+    <li><a href="items.html">Items</a></li>
+    <li><a href="world.html" class="active">World</a></li>
+    <li><a href="bosses.html">Bosses</a></li>
+    <li><a href="story.html">Story</a></li>
+  </ul>
+</nav>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1>World</h1>
+    <div class="subtitle">Towns, routes, dungeons, encounter tables, and points of interest</div>
+    <div class="living-doc-note">⚑ Living Document — update as game develops</div>
+  </div>
+
+  <!-- Quick jump -->
+  <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem;">
+    <a href="#towns" class="filter-btn active">Towns</a>
+    <a href="#routes" class="filter-btn active">Routes</a>
+    <a href="#trolls" class="filter-btn active">Bridge Trolls</a>
+    <a href="#dungeons" class="filter-btn active">Dungeons</a>
+    <a href="#special" class="filter-btn active">Points of Interest</a>
+  </div>
+
+  <!-- ── TOWNS ──────────────────────────────────────────── -->
+  <div class="world-section" id="towns">
+    <h2 style="margin-bottom:1.25rem;">Towns</h2>
+
+    <div id="towns-container"></div>
+  </div>
+
+  <!-- ── ROUTES ─────────────────────────────────────────── -->
+  <div class="world-section" id="routes">
+    <h2 style="margin-bottom:1.25rem;">Routes</h2>
+    <div id="routes-container"></div>
+  </div>
+
+  <!-- ── BRIDGE TROLLS ──────────────────────────────────── -->
+  <div class="world-section" id="trolls">
+    <h2 style="margin-bottom:1.25rem;">Bridge Trolls</h2>
+    <div class="info-box note" style="margin-bottom:1rem;">
+      River Road crosses three bridges, each guarded by a troll with different demands. All three must be dealt with to fully traverse the route.
+    </div>
+    <div id="trolls-container"></div>
+  </div>
+
+  <!-- ── DUNGEONS ───────────────────────────────────────── -->
+  <div class="world-section" id="dungeons">
+    <h2 style="margin-bottom:1.25rem;">Dungeons</h2>
+    <div id="dungeons-container"></div>
+  </div>
+
+  <!-- ── SPECIAL LOCATIONS ─────────────────────────────── -->
+  <div class="world-section" id="special">
+    <h2 style="margin-bottom:1.25rem;">Points of Interest</h2>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚒</span><span>Axe Throw Stone Carving — Midlands Road</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>Found on the Midlands Road. A stone carving depicting the Axe Throw technique. The Barbarian class learns <strong>Axe Throw</strong> by finding and reading this carving — not by being taught.</p>
+        <p class="text-dim" style="font-size:0.85rem;">One of the few moves in the game that is discovered rather than levelled into.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⭐</span><span>Gregor's Standing Stone — Ashborn Territory</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>The standing stone of Gregor the Unbroken, the former Ashborn chief. The Barbarian class learns <strong>Boulder Hurl</strong> (legendary) here.</p>
+        <div class="quote-block">"Gregor learned this here. Now you do."</div>
+        <p class="text-dim" style="font-size:0.85rem;">The inscription on the stone. Boulder Hurl is the rarest Barbarian move — one per world, legendary tier.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🌉</span><span>Crossroads — Black Dog Spawn</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>Any crossroads at night has a chance to spawn the <strong>Black Dog</strong>. Once per world. Shadow/Strike — the hardest of the gothic creature catches to set up.</p>
+        <p class="text-dim" style="font-size:0.85rem;">The Black Dog evolves into the Harbinger — one of the most powerful endgame followers.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⛪</span><span>Cathedral — Gargoyle Spawn</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>A specific cathedral location (one per world) is where the <strong>Gargoyle</strong> can be found. Earth/Strike base typing evolving to the legendary Stone Sentinel.</p>
+        <p class="text-dim" style="font-size:0.85rem;">The same cathedral is the arena for Zacharias, the first of the Hateful Four.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🌲</span><span>Forest Shelter — Boggart Recruitment</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>Leave a Bowl of Cream at a forest shelter for <strong>three consecutive nights</strong>. The Boggart will then agree to follow. One per world — only one shelter will work.</p>
+        <p class="text-dim" style="font-size:0.85rem;">Shadow/Toxin chain. Evolves to Red Cap at the top.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚰</span><span>Barrow Sites — Barrow Wight Recruitment</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>Place an <strong>Ancient Coin</strong> at the entrance of a barrow to summon the <strong>Barrow Wight</strong>. Spirit/Earth typing — evolves to the legendary Barrow King.</p>
+        <p class="text-dim" style="font-size:0.85rem;">The ritual requires standing at the entrance rather than fighting.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🏟</span><span>The Tournament — Champion's Belt</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>The <strong>Champion's Belt</strong> is only obtainable from the tournament — it cannot be purchased or found in the world. Required to evolve Brawler to Champion.</p>
+        <p class="text-dim" style="font-size:0.85rem;">The only evolution item in the game that requires winning a specific event rather than purchasing or finding it.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚓</span><span>Shipwreck — Story Start</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>The game begins at the wreckage of a ship on the shore near <strong>Ashport</strong>. The player and Mason Winters wash up together without knowing who the other is. This is how the story starts — no fanfare, no prophecy.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="page-footer">
+  Untitled Game — Reference Site &nbsp;|&nbsp; Charlie Dahm &nbsp;|&nbsp; <span class="living-doc-note">Living Document — update as game develops</span>
+</footer>
+
+<script src="data.js"></script>
+<script>
+function toggleCollapsible(btn) {
+  btn.closest('.collapsible').classList.toggle('open');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── Towns ──────────────────────────────────────────────
+  const townsContainer = document.getElementById('towns-container');
+  townsContainer.innerHTML = WORLD.towns.map((town, i) => {
+    const dungeonBadge = town.dungeon
+      ? `<span class="dungeon-badge">${town.dungeon}</span>` : '';
+    const lordStr = town.lord
+      ? `<div class="town-lord">Lord: <strong>${town.lord}</strong></div>` : '';
+    return `
+      <div class="town-card">
+        <div>
+          <div class="town-name">${town.name}</div>
+          <div class="town-dungeon">${dungeonBadge} ${town.dungeon ? 'Dungeon attached' : 'No dungeon'}</div>
+          ${lordStr}
+        </div>
+        <div style="font-size:0.85rem;color:var(--text-dim);">${town.notes}</div>
+      </div>
+    `;
+  }).join('');
+
+  // ── Routes ─────────────────────────────────────────────
+  const routesContainer = document.getElementById('routes-container');
+  routesContainer.innerHTML = WORLD.routes.map(route => `
+    <div class="route-card">
+      <span class="route-name">${route.name}</span>
+      <span class="route-desc">${route.notes}</span>
+    </div>
+  `).join('');
+
+  // ── Trolls ─────────────────────────────────────────────
+  const trollsContainer = document.getElementById('trolls-container');
+  trollsContainer.innerHTML = WORLD.bridgeTrolls.map(troll => `
+    <div class="card" style="margin-bottom:1rem;">
+      <div class="card-header">
+        <span class="card-icon">🌉</span>
+        <div>
+          <h4 class="card-title">${troll.name}</h4>
+          <div style="font-size:0.78rem;color:var(--text-muted);">${troll.bridge}</div>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <span class="detail-key">Demands</span>
+        <span class="detail-val">${troll.demand}</span>
+        <span class="detail-key">Notes</span>
+        <span class="detail-val">${troll.notes}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // ── Dungeons ───────────────────────────────────────────
+  const dungeonsContainer = document.getElementById('dungeons-container');
+  dungeonsContainer.innerHTML = WORLD.dungeons.map(d => `
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left">
+          <span class="dungeon-badge">${d.id}</span>
+          <span>${d.name}</span>
+        </span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <div class="detail-grid">
+          <span class="detail-key">Lord</span>
+          <span class="detail-val">${d.lord}</span>
+          <span class="detail-key">Notes</span>
+          <span class="detail-val">${d.notes}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+});
+</script>
+</body>
+</html>

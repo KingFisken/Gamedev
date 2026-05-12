@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Followers — Untitled Game Reference</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="main-nav">
+  <div class="nav-logo">
+    <span class="logo-icon">⚔</span>
+    <span class="logo-text">Untitled Game</span>
+    <span class="logo-sub">Reference</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="classes.html">Classes</a></li>
+    <li><a href="followers.html" class="active">Followers</a></li>
+    <li><a href="items.html">Items</a></li>
+    <li><a href="world.html">World</a></li>
+    <li><a href="bosses.html">Bosses</a></li>
+    <li><a href="story.html">Story</a></li>
+  </ul>
+</nav>
+
+<!-- Sticky filter bar -->
+<div class="follower-filters" id="filter-bar">
+  <div class="filter-search">
+    <input type="text" class="search-input" id="search-input" placeholder="Search followers…" oninput="applyFilters()">
+
+    <div class="filter-group">
+      <span class="filter-group-label">Race:</span>
+      <button class="filter-btn" data-filter="race" data-value="human"    onclick="toggleFilter(this)">Human</button>
+      <button class="filter-btn" data-filter="race" data-value="gothic"   onclick="toggleFilter(this)">Gothic</button>
+      <button class="filter-btn" data-filter="race" data-value="elven"    onclick="toggleFilter(this)">Elven</button>
+      <button class="filter-btn" data-filter="race" data-value="dwarf"    onclick="toggleFilter(this)">Dwarf</button>
+      <button class="filter-btn" data-filter="race" data-value="beastkin" onclick="toggleFilter(this)">Beastkin</button>
+      <button class="filter-btn" data-filter="race" data-value="named"    onclick="toggleFilter(this)">Named</button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-group-label">Type:</span>
+      <button class="filter-btn t-flesh"     data-filter="type" data-value="flesh"     onclick="toggleFilter(this)">Flesh</button>
+      <button class="filter-btn t-shadow"    data-filter="type" data-value="shadow"    onclick="toggleFilter(this)">Shadow</button>
+      <button class="filter-btn t-fire"      data-filter="type" data-value="fire"      onclick="toggleFilter(this)">Fire</button>
+      <button class="filter-btn t-ice"       data-filter="type" data-value="ice"       onclick="toggleFilter(this)">Ice</button>
+      <button class="filter-btn t-earth"     data-filter="type" data-value="earth"     onclick="toggleFilter(this)">Earth</button>
+      <button class="filter-btn t-spirit"    data-filter="type" data-value="spirit"    onclick="toggleFilter(this)">Spirit</button>
+      <button class="filter-btn t-holy"      data-filter="type" data-value="holy"      onclick="toggleFilter(this)">Holy</button>
+      <button class="filter-btn t-toxin"     data-filter="type" data-value="toxin"     onclick="toggleFilter(this)">Toxin</button>
+      <button class="filter-btn t-eldritch"  data-filter="type" data-value="eldritch"  onclick="toggleFilter(this)">Eldritch</button>
+      <button class="filter-btn t-strike"    data-filter="type" data-value="strike"    onclick="toggleFilter(this)">Strike</button>
+      <button class="filter-btn t-lightning" data-filter="type" data-value="lightning" onclick="toggleFilter(this)">Lightning</button>
+    </div>
+
+    <div class="filter-group">
+      <button class="filter-btn" data-filter="special" data-value="legendary" onclick="toggleFilter(this)">⭐ Legendary</button>
+      <button class="filter-btn" data-filter="special" data-value="unique"    onclick="toggleFilter(this)">🔴 One-Per-World</button>
+    </div>
+
+    <button class="filter-clear" onclick="clearAllFilters()">✕ Clear</button>
+    <span class="filter-count" id="filter-count"></span>
+  </div>
+</div>
+
+<div class="page-container" style="padding-top:1rem;">
+  <div class="page-header" style="padding-top:1rem;">
+    <h1>Followers</h1>
+    <div class="subtitle">All evolution chains — searchable by name, filterable by race and type</div>
+    <div class="living-doc-note">⚑ Living Document — update as game develops</div>
+  </div>
+
+  <div id="followers-container"></div>
+</div>
+
+<footer class="page-footer">
+  Untitled Game — Reference Site &nbsp;|&nbsp; Charlie Dahm &nbsp;|&nbsp; <span class="living-doc-note">Living Document — update as game develops</span>
+</footer>
+
+<script src="data.js"></script>
+<script>
+// ── State ──────────────────────────────────────────────────
+const activeFilters = { race: new Set(), type: new Set(), special: new Set() };
+let allCards = [];
+
+// ── Rendering ─────────────────────────────────────────────
+
+function getNodeAllTypes(node) {
+  let types = [...(node.types || [])];
+  (node.children || []).forEach(c => { types = types.concat(getNodeAllTypes(c)); });
+  return types;
+}
+
+function getNodeAllNames(node) {
+  let names = [node.name.toLowerCase()];
+  (node.children || []).forEach(c => { names = names.concat(getNodeAllNames(c)); });
+  return names;
+}
+
+function getNodeAllLegendary(node) {
+  if (node.isLegendary) return true;
+  return (node.children || []).some(c => getNodeAllLegendary(c));
+}
+
+function getNodeAllUnique(node) {
+  if (node.isUnique) return true;
+  return (node.children || []).some(c => getNodeAllUnique(c));
+}
+
+function renderNode(node, depth) {
+  const indent = depth * 0;
+  const reqParts = [];
+  if (node.levelReq) reqParts.push(`Lv.${node.levelReq}`);
+  if (node.itemReqs && node.itemReqs.length) reqParts.push(...node.itemReqs);
+
+  const flags = [];
+  if (node.isLegendary) flags.push('<span class="flag-legendary">⭐ Legendary</span>');
+  if (node.isUnique)    flags.push('<span class="flag-unique">🔴 One-per-world</span>');
+  if (node.isTerminal && !node.isLegendary && !node.isUnique) flags.push('<span class="flag-terminal">◼ Terminal</span>');
+
+  const nodeClass = [
+    'follower-node-inner',
+    node.isLegendary ? 'is-legendary' : '',
+    node.isUnique    ? 'is-unique'    : '',
+  ].filter(Boolean).join(' ');
+
+  const mainHtml = `
+    <div class="${nodeClass}" title="${node.notes || ''}">
+      <div class="follower-node-name">${node.name}</div>
+      ${renderTypes(node.types)}
+      ${reqParts.length ? `<div class="follower-node-req">${reqParts.join(' · ')}</div>` : ''}
+      ${node.notes ? `<div class="follower-node-req" style="margin-top:0.25rem;font-style:italic;">${node.notes}</div>` : ''}
+      ${flags.length ? `<div class="follower-node-flags">${flags.join('')}</div>` : ''}
+    </div>
+  `;
+
+  if (!node.children || node.children.length === 0) {
+    return `<div class="follower-node"><div>${mainHtml}</div></div>`;
+  }
+
+  if (node.children.length === 1) {
+    // Single child — render inline
+    return `
+      <div class="follower-node">
+        <div class="node-with-branches">
+          <div style="display:flex;align-items:flex-start;">
+            <div>${mainHtml}</div>
+            <div class="chain-arrow">→</div>
+            ${renderNode(node.children[0], depth + 1)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Multiple children — render first inline if it's a "main" path, rest as branches
+  const [first, ...rest] = node.children;
+  const firstIsMain = !first.isTerminal || first.children && first.children.length > 0;
+
+  const branchItems = (firstIsMain ? rest : node.children).map(child => `
+    <div class="branch-item">
+      ${renderNode(child, depth + 1)}
+    </div>
+  `).join('');
+
+  if (firstIsMain) {
+    return `
+      <div class="follower-node">
+        <div class="node-with-branches">
+          <div style="display:flex;align-items:flex-start;">
+            <div>${mainHtml}</div>
+            <div class="chain-arrow">→</div>
+            ${renderNode(first, depth + 1)}
+          </div>
+          <div class="chain-branch">
+            <div class="branch-note">Also evolves to:</div>
+            ${branchItems}
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    return `
+      <div class="follower-node">
+        <div class="node-with-branches">
+          <div>${mainHtml}</div>
+          <div class="chain-branch">
+            <div class="branch-note">Evolves to (choose):</div>
+            ${branchItems}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderChain(chain, race) {
+  const chainId = `chain-${race}-${chain.id}`;
+  const contractHtml = chain.contract
+    ? `<span class="chain-contract">${chain.contract}</span>` : '';
+
+  return `
+    <div class="chain-card" id="${chainId}" data-race="${race}" data-chain="${chain.id}">
+      <div class="chain-meta">
+        <span class="chain-name">${chain.chainName}</span>
+        <span class="chain-catch-info">${chain.catchInfo}</span>
+        ${contractHtml}
+      </div>
+      <div class="chain-tree">
+        <div class="chain-row">
+          ${renderNode(chain.root, 0)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRaceGroup(race, chains, label, icon) {
+  const chainsHtml = chains.map(c => renderChain(c, race)).join('');
+  return `
+    <div class="chain-group" data-group="${race}">
+      <div class="chain-group-header">
+        <span>${icon}</span>
+        <span>${label}</span>
+        <span style="font-size:0.8rem;color:var(--text-muted);font-family:var(--font-sans);font-weight:normal;">(${chains.length} chains)</span>
+      </div>
+      ${chainsHtml}
+    </div>
+  `;
+}
+
+// ── Filter logic ──────────────────────────────────────────
+
+function applyFilters() {
+  const query = document.getElementById('search-input').value.toLowerCase().trim();
+  const raceFilters    = activeFilters.race;
+  const typeFilters    = activeFilters.type;
+  const specialFilters = activeFilters.special;
+
+  let visible = 0;
+
+  allCards.forEach(({ card, chain, race }) => {
+    const root = chain.root;
+    const allTypes  = getNodeAllTypes(root).map(t => t.toLowerCase());
+    const allNames  = getNodeAllNames(root);
+    const hasLegend = getNodeAllLegendary(root);
+    const hasUnique = getNodeAllUnique(root);
+
+    // Search
+    const matchSearch = !query || allNames.some(n => n.includes(query));
+
+    // Race filter
+    const matchRace = raceFilters.size === 0 || raceFilters.has(race);
+
+    // Type filter (any node in the chain has that type)
+    const matchType = typeFilters.size === 0 ||
+      [...typeFilters].some(t => allTypes.includes(t));
+
+    // Special filter
+    let matchSpecial = true;
+    if (specialFilters.size > 0) {
+      matchSpecial = (specialFilters.has('legendary') && hasLegend) ||
+                     (specialFilters.has('unique')    && hasUnique);
+    }
+
+    const show = matchSearch && matchRace && matchType && matchSpecial;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  // Hide empty groups
+  document.querySelectorAll('.chain-group').forEach(group => {
+    const anyVisible = [...group.querySelectorAll('.chain-card')]
+      .some(c => !c.classList.contains('hidden'));
+    group.style.display = anyVisible ? '' : 'none';
+  });
+
+  document.getElementById('filter-count').textContent =
+    visible === allCards.length ? '' : `${visible} of ${allCards.length} chains`;
+}
+
+function toggleFilter(btn) {
+  const { filter, value } = btn.dataset;
+  if (activeFilters[filter].has(value)) {
+    activeFilters[filter].delete(value);
+    btn.classList.remove('active');
+  } else {
+    activeFilters[filter].add(value);
+    btn.classList.add('active');
+  }
+  applyFilters();
+}
+
+function clearAllFilters() {
+  document.querySelectorAll('.filter-btn.active').forEach(b => b.classList.remove('active'));
+  Object.values(activeFilters).forEach(s => s.clear());
+  document.getElementById('search-input').value = '';
+  applyFilters();
+}
+
+// ── Init ──────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('followers-container');
+
+  const groups = [
+    { race: 'human',    chains: FOLLOWER_CHAINS.human,    label: 'Human',          icon: '👤' },
+    { race: 'gothic',   chains: FOLLOWER_CHAINS.gothic,   label: 'Gothic Creatures', icon: '🐺' },
+    { race: 'elven',    chains: FOLLOWER_CHAINS.elven,    label: 'Elven',          icon: '🌿' },
+    { race: 'dwarf',    chains: FOLLOWER_CHAINS.dwarf,    label: 'Dwarf',          icon: '⛏' },
+    { race: 'beastkin', chains: FOLLOWER_CHAINS.beastkin, label: 'Beastkin',       icon: '🐆' },
+    { race: 'named',    chains: FOLLOWER_CHAINS.named,    label: 'Named Generals', icon: '⭐' },
+  ];
+
+  container.innerHTML = groups.map(g =>
+    renderRaceGroup(g.race, g.chains, g.label, g.icon)
+  ).join('');
+
+  // Collect all cards for filtering
+  document.querySelectorAll('.chain-card').forEach(card => {
+    const race  = card.dataset.race;
+    const cid   = card.dataset.chain;
+    const group = groups.find(g => g.race === race);
+    const chain = group ? group.chains.find(c => c.id === cid) : null;
+    if (chain) allCards.push({ card, chain, race });
+  });
+
+  document.getElementById('filter-count').textContent = '';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classes — Untitled Game Reference</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="main-nav">
+  <div class="nav-logo">
+    <span class="logo-icon">⚔</span>
+    <span class="logo-text">Untitled Game</span>
+    <span class="logo-sub">Reference</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="classes.html" class="active">Classes</a></li>
+    <li><a href="followers.html">Followers</a></li>
+    <li><a href="items.html">Items</a></li>
+    <li><a href="world.html">World</a></li>
+    <li><a href="bosses.html">Bosses</a></li>
+    <li><a href="story.html">Story</a></li>
+  </ul>
+</nav>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1>Classes</h1>
+    <div class="subtitle">Six playable classes — five available from the start, one unlockable</div>
+    <div class="living-doc-note">⚑ Living Document — update as game develops</div>
+  </div>
+
+  <div id="classes-container"></div>
+</div>
+
+<footer class="page-footer">
+  Untitled Game — Reference Site &nbsp;|&nbsp; Charlie Dahm &nbsp;|&nbsp; <span class="living-doc-note">Living Document — update as game develops</span>
+</footer>
+
+<script src="data.js"></script>
+<script>
+function toggleCollapsible(btn) {
+  btn.closest('.collapsible').classList.toggle('open');
+}
+
+const RESOURCE_CLASSES = {
+  stamina: 'resource-stamina',
+  mana:    'resource-mana',
+  rage:    'resource-rage',
+};
+
+const RESOURCE_ICONS = {
+  stamina: '◈',
+  mana:    '✦',
+  rage:    '⚡',
+};
+
+function renderSkillTier(tier) {
+  const skillsHtml = tier.skills.map(s => `
+    <div class="skill-node ${s.isUltimate ? 'tier-ultimate' : ''}">
+      <div class="skill-name">${s.name}</div>
+      <div class="skill-desc">${s.desc}</div>
+      ${s.isUltimate ? '<div class="skill-special">★ Pinnacle skill</div>' : ''}
+    </div>
+  `).join('');
+  return `
+    <div class="skill-tier">
+      <div class="skill-tier-label">${tier.label}</div>
+      <div class="skills-in-tier">${skillsHtml}</div>
+    </div>
+  `;
+}
+
+function renderRangedMoves(moves) {
+  if (!moves || moves.length === 0) return '';
+  const rows = moves.map(m => `
+    <div class="skill-node" style="max-width:100%;border-color:var(--gold-border);background:linear-gradient(135deg,var(--bg-raised),rgba(201,168,76,0.06));">
+      <div class="skill-name">${m.name} <span style="font-size:0.72rem;color:var(--gold-dim)">${m.tags.map(t=>`<span class="tag ${t==='legendary'?'tag-legend':''}">${t}</span>`).join(' ')}</span></div>
+      <div class="skill-desc">${m.how}</div>
+    </div>
+  `).join('');
+  return `
+    <div class="skill-tree-section" style="margin-top:1rem;">
+      <div class="skill-tree-title">Ranged Moves (found in world)</div>
+      <div class="skills-in-tier" style="padding:0 0 0.5rem;">${rows}</div>
+    </div>
+  `;
+}
+
+function renderClass(cls) {
+  const statRows = cls.stats.map(s => `
+    <div class="stat-row">
+      <span class="stat-label">${s.label}</span>
+      <div class="stat-bar"><div class="stat-fill ${s.fill}"></div></div>
+      <span class="stat-value">${s.value}</span>
+    </div>
+  `).join('');
+
+  const tiers = cls.skillTiers.map(renderSkillTier).join('');
+  const ranged = renderRangedMoves(cls.rangedMoves);
+
+  const unlockBadge = cls.unlockCondition
+    ? `<span class="class-unlock">🔒 ${cls.unlockCondition}</span>`
+    : '';
+
+  return `
+    <div class="class-card" id="class-${cls.id}">
+      <div class="class-header">
+        <div class="class-color-bar ${cls.colorClass}"></div>
+        <div class="class-header-content">
+          <h2 class="class-name">${cls.icon} ${cls.name}</h2>
+          <div class="class-subtitle">${cls.subtitle}</div>
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem;">
+            <span class="resource-badge ${RESOURCE_CLASSES[cls.resource]}">
+              ${RESOURCE_ICONS[cls.resource]} ${cls.resource.charAt(0).toUpperCase()+cls.resource.slice(1)}
+            </span>
+            ${unlockBadge}
+          </div>
+        </div>
+      </div>
+
+      <div class="class-body">
+        <div class="class-stats-panel">
+          <div class="section-label">Base Stats</div>
+          <div class="stat-list">${statRows}</div>
+
+          ${cls.resourceNote ? `<div class="info-box note" style="margin-top:1rem;">⚠ ${cls.resourceNote}</div>` : ''}
+
+          <div style="margin-top:1.25rem;">
+            <div class="section-label">Essence Ability</div>
+            <div class="essence-block">
+              <div class="essence-label">Essence</div>
+              <div class="essence-name">${cls.essence.name}</div>
+              <div class="essence-duration">${cls.essence.duration}</div>
+              <div class="essence-effect">${cls.essence.effect}</div>
+            </div>
+          </div>
+
+          ${cls.notes ? `<div class="info-box note" style="margin-top:1rem;">${cls.notes}</div>` : ''}
+        </div>
+
+        <div class="class-skills-panel">
+          <div class="section-label">Description</div>
+          <p style="margin-bottom:1.25rem;color:var(--text-dim);">${cls.description}</p>
+
+          <div class="skill-tree-title">Skill Tree</div>
+          <div class="skill-tree">${tiers}</div>
+          ${ranged}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('classes-container');
+
+  // Quick-jump links
+  const jumpLinks = CLASSES.map(c =>
+    `<a href="#class-${c.id}" style="padding:0.3rem 0.8rem;border:1px solid var(--border-mid);border-radius:20px;font-size:0.8rem;color:var(--text-dim);transition:all 0.2s;"
+        onmouseover="this.style.borderColor='var(--gold-border)';this.style.color='var(--gold)'"
+        onmouseout="this.style.borderColor='var(--border-mid)';this.style.color='var(--text-dim)'"
+     >${c.icon} ${c.name}</a>`
+  ).join('');
+
+  container.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem;">
+      ${jumpLinks}
+    </div>
+    ${CLASSES.map(renderClass).join('')}
+  `;
+});
+</script>
+</body>
+</html>

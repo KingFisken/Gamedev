@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Story — Untitled Game Reference</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="main-nav">
+  <div class="nav-logo">
+    <span class="logo-icon">⚔</span>
+    <span class="logo-text">Untitled Game</span>
+    <span class="logo-sub">Reference</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="classes.html">Classes</a></li>
+    <li><a href="followers.html">Followers</a></li>
+    <li><a href="items.html">Items</a></li>
+    <li><a href="world.html">World</a></li>
+    <li><a href="bosses.html">Bosses</a></li>
+    <li><a href="story.html" class="active">Story</a></li>
+  </ul>
+</nav>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1>Story</h1>
+    <div class="subtitle">Characters, story beats, lord backgrounds, and the threads between them</div>
+    <div class="living-doc-note">⚑ Living Document — update as game develops</div>
+  </div>
+
+  <!-- Quick jump -->
+  <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem;">
+    <a href="#characters" class="filter-btn active">Characters</a>
+    <a href="#story-beats" class="filter-btn active">Story Beats</a>
+    <a href="#lord-backgrounds" class="filter-btn active">Lord Backgrounds</a>
+    <a href="#themes" class="filter-btn active">Themes</a>
+  </div>
+
+  <!-- ── CHARACTERS ──────────────────────────────────────── -->
+  <section id="characters">
+    <h2 style="margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">Key Characters</h2>
+    <div id="characters-container"></div>
+  </section>
+
+  <!-- ── STORY BEATS ─────────────────────────────────────── -->
+  <section id="story-beats" style="margin-top:3rem;">
+    <h2 style="margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">Story Beats</h2>
+    <p style="color:var(--text-dim);margin-bottom:1.5rem;font-size:0.9rem;">Key moments in sequence — not a full walkthrough, but the spine.</p>
+    <div id="beats-container"></div>
+  </section>
+
+  <!-- ── LORD BACKGROUNDS ────────────────────────────────── -->
+  <section id="lord-backgrounds" style="margin-top:3rem;">
+    <h2 style="margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">Lord Backgrounds</h2>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>📜</span><span>All Lords — Quick Reference</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">
+        <table class="item-table">
+          <thead>
+            <tr>
+              <th style="width:200px;">Lord</th>
+              <th>Background</th>
+            </tr>
+          </thead>
+          <tbody id="lords-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── THEMES ──────────────────────────────────────────── -->
+  <section id="themes" style="margin-top:3rem;">
+    <h2 style="margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--gold-border);">Themes & Notes</h2>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>👤</span><span>The Dead King's Presence</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>King John Winters never appears in the game. He is present entirely through what he left behind:</p>
+        <ul>
+          <li><strong>The sword style</strong> — Mason inherited it. Nobody told him.</li>
+          <li><strong>Aldric's undelivered letter</strong> — the last thing John asked. Aldric didn't do it.</li>
+          <li><strong>The soldiers</strong> — remember his final speech word for word.</li>
+          <li><strong>The crown</strong> — Astaroth has it.</li>
+        </ul>
+        <p class="text-dim">He shapes everything without speaking a line or appearing on screen.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🗡</span><span>The Betrayal Structure</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>Mesterby's betrayals are <strong>three</strong> and are revealed incrementally. None come all at once. Each one reframes what came before:</p>
+        <ul>
+          <li><strong>Betrayal One</strong> — TBD (revealed first, smaller)</li>
+          <li><strong>Betrayal Two</strong> — TBD (escalation)</li>
+          <li><strong>Betrayal Three</strong> — Gave demons the secret passage to Vaelen's blindspot during the Demon War. Killed Vaelen. Broke Erwin's family. Led to the Dwarf Mountain being falsely blamed for years.</li>
+        </ul>
+        <p class="text-dim">The third betrayal is the one that matters for Erwin's arc — why D6 requires completing the Mesterby quest first.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚡</span><span>Mason vs. The Player — The Coalition Moment</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>At the coalition assembly, the lords gather to pledge. Kalen — who has just become Ashborn chief — enters the room. Mason Winters is present. Kalen walks <em>past Mason</em> and pledges to the player directly.</p>
+        <p>Mason is the heir to the throne by blood. The player is not. Kalen's choice is deliberate — he's pledging to the person who actually did the work. Mason notices. He says nothing.</p>
+        <p class="text-dim">The game never comments on this directly. The player sees it. Mason sees it. Kalen walks past.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>💬</span><span>Names and Withheld Information</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>Astaroth's name is <strong>not spoken</strong> until Nathaniel says it with his dying breath. The Hateful Four are four battles fought without knowing what lies beyond them. The name lands with the weight of everything that was withheld.</p>
+        <div class="quote-block">"You will never reach him. You will never stop... Astaroth."</div>
+        <p>Then immediately, when the player reaches him:</p>
+        <div class="quote-block">"He said my name. He was always loyal."</div>
+        <p class="text-dim">Nathaniel's last act was to name his master. Astaroth heard it. He is grateful. This is how ancient, patient evil sounds — not threatening, not cruel. Appreciative.</p>
+      </div>
+    </div>
+
+    <div class="collapsible open">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>⚒</span><span>Aldric's Choice</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body">
+        <p>John's last request to Aldric was simple: find Mason. Bring him home. Aldric ignored it. He charged to die beside his king instead — the loyal soldier's death over the harder task of delivering news to a boy who didn't know he was a prince.</p>
+        <p>He wrote a letter of apology that was never delivered. He still has it. He apologised with a tear in one eye. John noticed.</p>
+        <p>Aldric cannot leave the burial site. He gives the player the letter and the Final Charge move. That's all he has left to give.</p>
+        <p class="text-dim">His arc is: the most loyal man in the kingdom was disloyal exactly once — and it was the thing that mattered most.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="page-footer">
+  Untitled Game — Reference Site &nbsp;|&nbsp; Charlie Dahm &nbsp;|&nbsp; <span class="living-doc-note">Living Document — update as game develops</span>
+</footer>
+
+<script src="data.js"></script>
+<script>
+function toggleCollapsible(btn) {
+  btn.closest('.collapsible').classList.toggle('open');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── Characters ─────────────────────────────────────────
+  const charsContainer = document.getElementById('characters-container');
+  charsContainer.innerHTML = STORY.characters.map(char => `
+    <div class="character-card">
+      <div class="character-header">
+        <div style="flex:1;">
+          <h3 class="character-name">${char.name}</h3>
+          <div class="character-role">${char.role}</div>
+          <div style="margin-top:0.4rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+            ${char.age ? `<span class="tag">Age: ${char.age}</span>` : ''}
+            <span class="tag">${char.status}</span>
+          </div>
+        </div>
+      </div>
+      <div class="character-body">
+        <p style="color:var(--text-dim);margin-bottom:1rem;">${char.summary}</p>
+        <div class="section-label">Key Details</div>
+        <ul style="color:var(--text);">
+          ${char.keyDetails.map(d => `<li>${d}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `).join('');
+
+  // ── Story Beats ────────────────────────────────────────
+  const beatsContainer = document.getElementById('beats-container');
+  beatsContainer.innerHTML = STORY.storyBeats.map((beat, i) => `
+    <div class="story-beat">
+      <div style="display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.4rem;">
+        <span style="font-family:var(--font-serif);font-size:1.1rem;color:var(--gold-dim);">${String(i+1).padStart(2,'0')}</span>
+        <div class="beat-title">${beat.title}</div>
+      </div>
+      <div style="font-size:0.88rem;color:var(--text-dim);">${beat.beat}</div>
+    </div>
+  `).join('');
+
+  // ── Lord Backgrounds ───────────────────────────────────
+  const lordsBody = document.getElementById('lords-table-body');
+  lordsBody.innerHTML = STORY.lordBackgrounds.map(l => `
+    <tr>
+      <td><span class="item-name">${l.lord}</span></td>
+      <td style="font-size:0.85rem;color:var(--text-dim);">${l.background}</td>
+    </tr>
+  `).join('');
+});
+</script>
+</body>
+</html>
