@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    (function() {
+      const PASSWORD = "Redbullersupergodt!40";
+      const KEY = "gr_auth";
+      if (sessionStorage.getItem(KEY) !== "1") {
+        const input = prompt("Enter password:");
+        if (input === PASSWORD) {
+          sessionStorage.setItem(KEY, "1");
+        } else {
+          document.documentElement.innerHTML = "";
+          window.location.href = "about:blank";
+        }
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Untitled Game — Reference</title>
