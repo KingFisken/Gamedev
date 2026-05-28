@@ -54,6 +54,7 @@
     <a href="#trolls" class="filter-btn active">Bridge Trolls</a>
     <a href="#dungeons" class="filter-btn active">Dungeons</a>
     <a href="#demons" class="filter-btn active">Demon Encounters</a>
+    <a href="#catch" class="filter-btn active">Catch System</a>
     <a href="#special" class="filter-btn active">Points of Interest</a>
   </div>
 
@@ -89,6 +90,12 @@
   <div class="world-section" id="demons">
     <h2 style="margin-bottom:1.25rem;">Demon Encounters</h2>
     <div id="demon-container"></div>
+  </div>
+
+  <!-- ── CATCH SYSTEM ─────────────────────────────────── -->
+  <div class="world-section" id="catch">
+    <h2 style="margin-bottom:1.25rem;">Catch System</h2>
+    <div id="catch-container"></div>
   </div>
 
   <!-- ── SPECIAL LOCATIONS ─────────────────────────────── -->
@@ -303,6 +310,76 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="collapsible-arrow">▶</span>
       </button>
       <div class="collapsible-body" style="padding:0;">${demonTable(de.tier3Named, true)}</div>
+    </div>
+  `;
+
+  // ── Catch System ───────────────────────────────────────
+  const catchContainer = document.getElementById('catch-container');
+  const cs = WORLD.catchSystem;
+
+  const contractRows = cs.contracts.map(c => `
+    <tr>
+      <td><span class="item-name ${c.tier === 'Royal Contract' ? 'legendary' : ''}">${c.tier}</span></td>
+      <td class="item-note">${c.equivalent}</td>
+      <td class="item-note">${c.rate}</td>
+      <td class="item-note">${c.cost}</td>
+      <td class="item-note" style="font-style:italic;">${c.description}${c.notes ? `<div style="margin-top:0.2rem;color:var(--gold);">${c.notes}</div>` : ''}</td>
+    </tr>
+  `).join('');
+
+  const lureRows = cs.lureItems.map(l => `
+    <tr>
+      <td class="item-note"><strong>${l.follower}</strong></td>
+      <td class="item-note">${l.item}</td>
+      <td class="item-note">${l.rate}</td>
+      <td class="item-note">${l.notes}</td>
+    </tr>
+  `).join('');
+
+  catchContainer.innerHTML = `
+    <div class="info-box note" style="margin-bottom:1rem;">
+      <strong>HP Threshold:</strong> ${cs.healthThreshold}
+    </div>
+
+    <div class="collapsible open" style="margin-bottom:0.75rem;">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>📜</span><span>Contracts</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">
+        <table class="item-table">
+          <thead><tr>
+            <th style="width:160px;">Tier</th>
+            <th style="width:120px;">Equivalent</th>
+            <th style="width:90px;">Rate</th>
+            <th>Cost</th>
+            <th>Description</th>
+          </tr></thead>
+          <tbody>${contractRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="collapsible open" style="margin-bottom:0.75rem;">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="ch-left"><span>🪤</span><span>Lure & Ritual Items</span></span>
+        <span class="collapsible-arrow">▶</span>
+      </button>
+      <div class="collapsible-body" style="padding:0;">
+        <table class="item-table">
+          <thead><tr>
+            <th style="width:140px;">Follower</th>
+            <th>Item Required</th>
+            <th style="width:180px;">Rate</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>${lureRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:0.5rem;">
+      <strong>Failed Recruitment:</strong> ${cs.failedRecruitment}
     </div>
   `;
 
