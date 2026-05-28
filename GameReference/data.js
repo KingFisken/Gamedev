@@ -649,7 +649,7 @@ const FOLLOWER_CHAINS = {
       id: 'war_dog',
       chainName: 'War Dog',
       catchInfo: 'Common encounter',
-      contract: 'Basic Contract',
+      contract: 'Dried Meat (lure)',
       root: {
         name: 'War Dog', types: ['flesh', 'strike'],
         levelReq: null, itemReqs: [], notes: null,
@@ -670,7 +670,7 @@ const FOLLOWER_CHAINS = {
       id: 'raven',
       chainName: 'Raven Chain',
       catchInfo: 'Common encounter',
-      contract: 'Basic Contract',
+      contract: 'Silver Trinket',
       root: {
         name: 'Raven', types: ['flesh', 'strike'],
         levelReq: null, itemReqs: [], notes: null,
