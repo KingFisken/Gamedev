@@ -93,7 +93,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Dungeon Bosses ─────────────────────────────────────
   const dungeonContainer = document.getElementById('dungeon-bosses-container');
-  dungeonContainer.innerHTML = BOSSES.dungeonBosses.map((boss, i) => `
+  dungeonContainer.innerHTML = BOSSES.dungeonBosses.map((boss, i) => {
+    const familyBlock = boss.family ? `
+      <div style="margin-top:1rem;">
+        <div class="boss-label">Family</div>
+        <table class="item-table" style="margin-top:0.4rem;">
+          <thead><tr>
+            <th style="width:160px;">Name</th>
+            <th style="width:140px;">Role</th>
+            <th style="width:50px;">Floor</th>
+            <th style="width:180px;">Types</th>
+            <th>Notes</th>
+          </tr></thead>
+          <tbody>
+            ${boss.family.map(m => `
+              <tr>
+                <td class="item-note"><strong>${m.name}</strong></td>
+                <td class="item-note">${m.role}</td>
+                <td class="item-note">${m.floor}</td>
+                <td>${renderTypes(m.types)}</td>
+                <td class="item-note">${m.notes}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>` : '';
+    const masonBlock = boss.masonLine ? `
+      <div style="margin-top:0.75rem;">
+        <div class="boss-label">Mason's Line</div>
+        <div class="quote-block" style="margin-top:0.4rem;">${boss.masonLine}</div>
+      </div>` : '';
+    return `
     <div class="boss-card" style="margin-bottom:1.25rem;">
       <div class="boss-header">
         <div class="boss-number">${String(i+1).padStart(2,'0')}</div>
@@ -113,8 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="boss-notes">${boss.mechanics}</div>
         </div>
       </div>
+      ${familyBlock}
+      ${masonBlock}
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   // ── Hateful Four ───────────────────────────────────────
   const hatefulContainer = document.getElementById('hateful-container');

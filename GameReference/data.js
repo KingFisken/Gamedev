@@ -1255,7 +1255,7 @@ const WORLD = {
     { name: 'Millhaven',     dungeon: 'D1',   lord: 'Lord Mesterby',   notes: 'Tutorial dungeon area. Mesterby appears helpful initially.' },
     { name: 'Rivergate',     dungeon: 'D2',   lord: 'Lord Ezra',       notes: 'Engineer lord. Ice puzzle dungeon.' },
     { name: 'Thornwick',     dungeon: 'D3',   lord: 'Lord Mattheus',   notes: 'Corruption begins here.' },
-    { name: 'Crestfall',     dungeon: 'D4',   lord: 'Lady Miriam',     notes: 'River crossing, water mechanics.' },
+    { name: 'Vane Crossing', dungeon: 'D4',   lord: 'House Vane',      notes: 'Strategic river crossing. Seven-floor tower dungeon.' },
     { name: 'Border Castle', dungeon: 'D5',   lord: 'Human Border Lord (TBD)', notes: 'Southern forest castle. Lord TBD.' },
     { name: 'Elven Grove',   dungeon: 'D6',   lord: 'Elder Erwin',     notes: 'Requires Mesterby betrayal quest completed first.' },
     { name: 'Ashborn Camp / Iron Pass', dungeon: 'D7', lord: 'Kalen', notes: 'Requires full Ashborn arc.' },
@@ -1283,7 +1283,7 @@ const WORLD = {
     { id: 'D1', name: 'D1 — Millhaven Dungeon', lord: 'Lord Mesterby',     notes: 'Tutorial dungeon. Mesterby acts as friend. Later revealed as betrayer of Vaelen.' },
     { id: 'D2', name: 'D2 — Rivergate Dungeon', lord: 'Lord Ezra',         notes: 'Engineering-themed. Ice puzzle mechanic.' },
     { id: 'D3', name: 'D3 — Thornwick Dungeon', lord: 'Lord Mattheus',     notes: 'Corruption visible from this point forward.' },
-    { id: 'D4', name: 'D4 — Crestfall Dungeon', lord: 'Lady Miriam',       notes: 'River crossing mechanic. Water-based challenges.' },
+    { id: 'D4', name: 'D4 — Vane Crossing',      lord: 'House Vane (Wulfric + Edith)', notes: 'Seven-floor tower. Children on floors 2–5. Evidence room floor 6. Double boss top floor.' },
     { id: 'D5', name: 'D5 — Border Castle',     lord: 'TBD (Border Lord)', notes: 'Southern forest castle. Lord not yet finalised.' },
     { id: 'D6', name: 'D6 — Corrupted Grove',   lord: 'Elder Erwin (pledge)', notes: 'Requires Mesterby betrayal quest completed first.' },
     { id: 'D7', name: 'D7 — Iron Pass',         lord: 'Kalen / Ashborn',   notes: 'Requires full Ashborn arc to be completed.' },
@@ -1365,11 +1365,20 @@ const BOSSES = {
       mechanics: 'Shadow corruption mechanic introduced here.',
     },
     {
-      name: 'Lady Miriam',
-      dungeon: 'D4 — Crestfall',
-      types: ['flesh', 'shadow', 'eldritch'],
-      notes: 'River crossing encounter. First female lord boss. Water mechanics throughout the dungeon.',
-      mechanics: 'River crossing and water-based environmental combat.',
+      name: 'House Vane — Wulfric + Edith',
+      dungeon: 'D4 — Vane Crossing',
+      types: ['flesh', 'shadow', 'strike'],
+      notes: 'Husband and wife are siblings. Closed bloodline — not secret, simply how House Vane has always operated. Sold the river crossing to demons during the Demon War for gold and safety. No redemption arc. Seven-floor tower dungeon. When one of the pair falls the other gains bonus ATK and DEF.',
+      mechanics: 'Double battle — Wulfric (slow, deliberate) and Edith (fast, deadly). Four children as floor mini-bosses: Oswin (F2, tactician), Aldith (F3, silent), Edwyn (F4, most physical), Mildred (F5, poison). Floor 6: evidence room with demon deal documents. Top floor: the double battle.',
+      family: [
+        { name: 'Lord Wulfric Vane', role: 'Husband / Brother', types: ['flesh','shadow','strike'], floor: 'Top', notes: 'Significantly older. Made the original deal. Old and deliberate.' },
+        { name: 'Lady Edith Vane',   role: 'Wife / Sister',     types: ['flesh','shadow','strike'], floor: 'Top', notes: 'Younger. Deadly loyal by choice. Faster than Wulfric. More dangerous in a straight fight.' },
+        { name: 'Oswin Vane',        role: 'Eldest son',        types: ['flesh','strike'],          floor: '2',   notes: 'Tactician. Gives orders mid-fight.' },
+        { name: 'Aldith Vane',       role: 'Eldest daughter',   types: ['flesh','shadow'],          floor: '3',   notes: 'No dialogue. Just fights.' },
+        { name: 'Edwyn Vane',        role: 'Second son',        types: ['flesh','strike'],          floor: '4',   notes: 'Most physical. Hardest of the four.' },
+        { name: 'Mildred Vane',      role: 'Youngest',          types: ['flesh','toxin','shadow'],  floor: '5',   notes: 'Looks gentle. Uses poison.' },
+      ],
+      masonLine: '"The bridge is ours. Every lord between here and the coast will hear about this by morning."',
     },
     {
       name: 'Human Border Lord (TBD)',
@@ -1604,6 +1613,14 @@ const STORY = {
   ],
 
   lordBackgrounds: [
+    {
+      lord: 'House Vane',
+      house: 'House Vane',
+      location: 'Vane Crossing — strategic river tower',
+      background: "Controls the kingdom's most strategic river crossing. Lord Wulfric Vane sold the crossing to demons during the Demon War for gold and safety. Wulfric and Edith are husband and wife — and siblings. Closed bloodline. Not secret. Simply how the house has always operated. No redemption arc for any family member. Mason takes the crossing after clearing the tower and becomes its new lord. His first sovereign territory taken rather than inherited.",
+      coalitionContribution: 'River crossing — controls all movement between midlands and south. Mason becomes the new lord.',
+      betrayer: true,
+    },
     {
       lord: 'Lord Mesterby',
       house: 'House Mesterby',
