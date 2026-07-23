@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+  (function() {
+    const PASSWORD = "admin123";
+    const KEY = "gr_auth";
+    if (sessionStorage.getItem(KEY) !== "1") {
+      const input = prompt("Enter password:");
+      if (input === PASSWORD) {
+        sessionStorage.setItem(KEY, "1");
+      } else {
+        document.documentElement.innerHTML = "";
+        window.location.href = "about:blank";
+      }
+    }
+  })();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eldaria — Moves & Damage Calculator</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── PAGE LAYOUT ─────────────────────────────────────────── */
+body { background: #0f0b07; color: #e8d5b0; font-family: 'Georgia', serif; margin: 0; }
+
+.page-header {
+  background: linear-gradient(135deg, #1a0e04 0%, #2c1f14 100%);
+  border-bottom: 2px solid #c4a882;
+  padding: 20px 32px;
+  display: flex; align-items: center; gap: 16px;
+}
+.page-header h1 { margin: 0; font-size: 22px; color: #c4a882; letter-spacing: 0.04em; }
+.page-header p { margin: 4px 0 0; font-size: 12px; color: #8a7050; }
+.back-btn {
+  background: #2c1f14; border: 1px solid #c4a882; color: #c4a882;
+  padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 12px;
+  text-decoration: none; white-space: nowrap;
+}
+.back-btn:hover { background: #3d2c1a; }
+
+.tabs { display: flex; gap: 0; border-bottom: 2px solid #3d2c1a; background: #150e07; padding: 0 24px; }
+.tab-btn {
+  padding: 12px 20px; background: none; border: none; color: #8a7050;
+  font-size: 13px; cursor: pointer; border-bottom: 3px solid transparent;
+  margin-bottom: -2px; letter-spacing: 0.02em;
+}
+.tab-btn.active { color: #c4a882; border-bottom-color: #c4a882; }
+.tab-btn:hover { color: #d4b890; }
+
+.tab-panel { display: none; padding: 24px; }
+.tab-panel.active { display: block; }
+
+/* ── TYPE BADGES ─────────────────────────────────────────── */
+.type-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 3px;
+  font-size: 10px; font-weight: bold; white-space: nowrap; margin: 1px;
+}
+.t-strike    { background:#3d3d3d; color:#fff; }
+.t-flesh     { background:#c97b5a; color:#fff; }
+.t-fire      { background:#d85a30; color:#fff; }
+.t-ice       { background:#5b9bd5; color:#fff; }
+.t-lightning { background:#efc050; color:#1a0e04; }
+.t-earth     { background:#7b9e3a; color:#fff; }
+.t-holy      { background:#f5c842; color:#1a0e04; }
+.t-shadow    { background:#534ab7; color:#fff; }
+.t-eldritch  { background:#9b3a6e; color:#fff; }
+.t-toxin     { background:#3d9e70; color:#fff; }
+.t-spirit    { background:#a0a0a0; color:#fff; }
+
+.cat-physical { background:#c97b5a22; color:#e8956a; border:1px solid #c97b5a55; padding:1px 6px; border-radius:3px; font-size:10px; }
+.cat-magic    { background:#534ab722; color:#8a80e8; border:1px solid #534ab755; padding:1px 6px; border-radius:3px; font-size:10px; }
+.cat-status   { background:#3d9e7022; color:#5dbe90; border:1px solid #3d9e7055; padding:1px 6px; border-radius:3px; font-size:10px; }
+.cat-spirit   { background:#a0a0a022; color:#c0c0c0; border:1px solid #a0a0a055; padding:1px 6px; border-radius:3px; font-size:10px; }
+
+/* ── MOVE TABLE ──────────────────────────────────────────── */
+.moves-controls {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;
+}
+.search-input {
+  background: #1a1008; border: 1px solid #3d2c1a; color: #e8d5b0;
+  padding: 8px 12px; border-radius: 4px; font-size: 13px; width: 220px;
+}
+.search-input:focus { outline: none; border-color: #c4a882; }
+.filter-select {
+  background: #1a1008; border: 1px solid #3d2c1a; color: #e8d5b0;
+  padding: 8px 10px; border-radius: 4px; font-size: 13px;
+}
+.filter-select:focus { outline: none; border-color: #c4a882; }
+.move-count { color: #8a7050; font-size: 12px; margin-left: auto; }
+
+.moves-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.moves-table th {
+  background: #2c1f14; color: #c4a882; padding: 8px 10px;
+  text-align: left; border-bottom: 2px solid #3d2c1a;
+  cursor: pointer; user-select: none; white-space: nowrap;
+}
+.moves-table th:hover { color: #e8d5b0; }
+.moves-table th .sort-arrow { font-size: 10px; margin-left: 4px; opacity: 0.5; }
+.moves-table th.sorted .sort-arrow { opacity: 1; color: #c4a882; }
+.moves-table td {
+  padding: 7px 10px; border-bottom: 1px solid #1e1508;
+  vertical-align: middle;
+}
+.moves-table tr:hover td { background: #1e1508; }
+.moves-table tr.eldaria-move td { background: #0d1a0e; }
+.moves-table tr.eldaria-move:hover td { background: #122014; }
+.eldaria-badge {
+  background: #1b4020; color: #5dbe90; border: 1px solid #3d9e70;
+  padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: bold;
+}
+.move-name { font-weight: bold; color: #e8d5b0; cursor: pointer; }
+.move-name:hover { color: #c4a882; text-decoration: underline; }
+.power-val { font-weight: bold; color: #d4b890; }
+.power-dash { color: #555; }
+.acc-val { color: #9a8060; }
+.effect-text { color: #9a8060; font-size: 11px; max-width: 340px; }
+
+/* ── DAMAGE CALCULATOR ───────────────────────────────────── */
+.calc-layout { display: grid; grid-template-columns: 380px 1fr; gap: 24px; }
+@media (max-width: 900px) { .calc-layout { grid-template-columns: 1fr; } }
+
+.calc-panel {
+  background: #150e07; border: 1px solid #3d2c1a; border-radius: 8px; padding: 20px;
+}
+.calc-panel h2 { margin: 0 0 16px; font-size: 15px; color: #c4a882; border-bottom: 1px solid #3d2c1a; padding-bottom: 8px; }
+.calc-panel h3 { margin: 16px 0 10px; font-size: 12px; color: #8a7050; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.input-row label { color: #9a8060; font-size: 12px; min-width: 110px; text-align: right; }
+.calc-input {
+  background: #1a1008; border: 1px solid #3d2c1a; color: #e8d5b0;
+  padding: 7px 10px; border-radius: 4px; font-size: 13px; flex: 1;
+}
+.calc-input:focus { outline: none; border-color: #c4a882; }
+.calc-select {
+  background: #1a1008; border: 1px solid #3d2c1a; color: #e8d5b0;
+  padding: 7px 10px; border-radius: 4px; font-size: 13px; flex: 1;
+}
+.calc-select:focus { outline: none; border-color: #c4a882; }
+.range-input { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #3d2c1a; outline: none; }
+.range-input::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #c4a882; cursor: pointer; }
+.range-val { color: #c4a882; font-weight: bold; min-width: 36px; text-align: center; font-size: 13px; }
+
+.move-picker {
+  display: flex; gap: 8px;
+}
+.move-picker select { flex: 1; }
+
+.result-box {
+  background: #0f0b07; border: 2px solid #3d2c1a; border-radius: 8px;
+  padding: 20px; margin-top: 0;
+}
+.result-main {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;
+}
+.result-card {
+  background: #1a1008; border: 1px solid #3d2c1a; border-radius: 6px;
+  padding: 14px; text-align: center;
+}
+.result-card .label { font-size: 10px; color: #8a7050; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.result-card .value { font-size: 28px; font-weight: bold; color: #c4a882; }
+.result-card .sub { font-size: 11px; color: #5a4020; margin-top: 4px; }
+.result-card.base .value { color: #c4a882; }
+.result-card.min-v .value { color: #e05050; }
+.result-card.max-v .value { color: #50c050; }
+.result-card.crit .value { color: #f5c842; }
+
+.formula-breakdown {
+  background: #0d0903; border: 1px solid #2c1f14; border-radius: 6px;
+  padding: 12px 16px; font-size: 11px; color: #7a6040;
+  font-family: 'Courier New', monospace; line-height: 1.8;
+}
+.formula-breakdown .step { color: #9a8060; }
+.formula-breakdown .result { color: #c4a882; font-weight: bold; }
+
+.type-eff-indicator {
+  display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  padding: 8px 12px; border-radius: 6px; font-size: 12px;
+}
+.type-eff-indicator.super { background: #0d2012; border: 1px solid #3d9e70; color: #5dbe90; }
+.type-eff-indicator.normal { background: #151005; border: 1px solid #3d2c1a; color: #9a8060; }
+.type-eff-indicator.resisted { background: #200d0d; border: 1px solid #7a2020; color: #e05050; }
+.type-eff-indicator.immune { background: #1a1a1a; border: 1px solid #444; color: #666; }
+.eff-mult { font-size: 18px; font-weight: bold; min-width: 32px; }
+
+/* ── BATCH TESTER ────────────────────────────────────────── */
+.batch-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px;
+  margin-top: 16px;
+}
+.batch-card {
+  background: #150e07; border: 1px solid #3d2c1a; border-radius: 6px; padding: 12px 14px;
+}
+.batch-card .move-title { font-weight: bold; color: #e8d5b0; margin-bottom: 4px; font-size: 13px; }
+.batch-card .move-meta { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+.batch-bar { height: 6px; border-radius: 3px; background: #1e1508; overflow: hidden; margin-bottom: 4px; }
+.batch-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.batch-dmg { font-size: 13px; color: #c4a882; font-weight: bold; }
+.batch-range { font-size: 10px; color: #5a4020; }
+
+/* ── TYPE CHART TAB ──────────────────────────────────────── */
+.type-chart-wrap { overflow-x: auto; }
+.type-chart-table { border-collapse: collapse; font-size: 11px; }
+.type-chart-table th, .type-chart-table td {
+  padding: 7px 10px; text-align: center; border: 1px solid #1e1508; min-width: 70px;
+}
+.type-chart-table th { background: #2c1f14; color: #c4a882; font-size: 10px; }
+.eff-2x  { background: #0d2012; color: #5dbe90; font-weight: bold; font-size: 13px; }
+.eff-1x  { background: #0f0b07; color: #3d3020; }
+.eff-half{ background: #200d0d; color: #e05050; font-size: 13px; }
+.eff-0x  { background: #1a1a1a; color: #555; font-size: 13px; }
+.type-chart-table .row-header { background: #2c1f14; font-weight: bold; }
+
+/* ── STATUS EFFECTS ──────────────────────────────────────── */
+.status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.status-card {
+  background: #150e07; border: 1px solid #3d2c1a; border-radius: 6px; padding: 14px;
+}
+.status-card .status-name { font-weight: bold; color: #e8d5b0; margin-bottom: 4px; }
+.status-card .status-type { margin-bottom: 8px; }
+.status-card .status-effect { font-size: 12px; color: #9a8060; line-height: 1.5; }
+
+/* ── SECTION TITLES ──────────────────────────────────────── */
+.section-title {
+  font-size: 11px; color: #8a7050; text-transform: uppercase; letter-spacing: 0.1em;
+  border-bottom: 1px solid #2c1f14; padding-bottom: 6px; margin: 20px 0 12px;
+}
+.add-to-batch {
+  background: #1b4020; border: 1px solid #3d9e70; color: #5dbe90;
+  padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+.add-to-batch:hover { background: #255430; }
+.clear-batch {
+  background: #2c1408; border: 1px solid #7a3020; color: #c05030;
+  padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+.clear-batch:hover { background: #3d1a08; }
+.batch-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Checkbox toggle */
+.toggle-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.toggle-label { color: #9a8060; font-size: 12px; }
+.toggle-input { accent-color: #c4a882; width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <a href="index.html" class="back-btn">← Back</a>
+  <div>
+    <h1>⚔ Moves & Damage Calculator</h1>
+    <p>143 moves across 11 types · Live damage formula · Batch tester · Type chart</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('calculator')">Damage Calculator</button>
+  <button class="tab-btn" onclick="showTab('moves')">Move List</button>
+  <button class="tab-btn" onclick="showTab('batch')">Batch Tester</button>
+  <button class="tab-btn" onclick="showTab('typechart')">Type Chart</button>
+  <button class="tab-btn" onclick="showTab('status')">Status Effects</button>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     TAB 1: DAMAGE CALCULATOR
+────────────────────────────────────────────────────────── -->
+<div id="tab-calculator" class="tab-panel active">
+  <div class="calc-layout">
+
+    <!-- LEFT: INPUTS -->
+    <div>
+      <div class="calc-panel">
+        <h2>⚔ Attacker</h2>
+        <div class="input-row">
+          <label>Level</label>
+          <input type="range" class="range-input" id="c-atk-lvl" min="1" max="120" value="100" oninput="syncRange('c-atk-lvl','c-atk-lvl-v');calc()">
+          <span class="range-val" id="c-atk-lvl-v">100</span>
+        </div>
+        <div class="input-row">
+          <label>ATK Stat</label>
+          <input type="range" class="range-input" id="c-atk-stat" min="10" max="200" value="100" oninput="syncRange('c-atk-stat','c-atk-stat-v');calc()">
+          <span class="range-val" id="c-atk-stat-v">100</span>
+        </div>
+        <div class="input-row">
+          <label>Critical Hit?</label>
+          <select class="calc-select" id="c-crit" onchange="calc()">
+            <option value="1">No</option>
+            <option value="1.5">Yes — ×1.5</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="calc-panel" style="margin-top:12px">
+        <h2>🛡 Defender</h2>
+        <div class="input-row">
+          <label>Enemy Level</label>
+          <input type="range" class="range-input" id="c-def-lvl" min="1" max="120" value="100" oninput="syncRange('c-def-lvl','c-def-lvl-v');calc()">
+          <span class="range-val" id="c-def-lvl-v">100</span>
+        </div>
+        <div class="input-row">
+          <label>DEF Stat</label>
+          <input type="range" class="range-input" id="c-def-stat" min="10" max="200" value="100" oninput="syncRange('c-def-stat','c-def-stat-v');calc()">
+          <span class="range-val" id="c-def-stat-v">100</span>
+        </div>
+      </div>
+
+      <div class="calc-panel" style="margin-top:12px">
+        <h2>⚡ Move</h2>
+        <div class="input-row">
+          <label>Pick a move</label>
+          <select class="calc-select" id="c-move-pick" onchange="loadMove();calc()" style="flex:1">
+            <option value="">— Select move —</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <label>Move Name</label>
+          <input type="text" class="calc-input" id="c-move-name" value="Iron Strike" oninput="calc()" placeholder="Custom name">
+        </div>
+        <div class="input-row">
+          <label>Base Power</label>
+          <input type="range" class="range-input" id="c-bp" min="10" max="250" value="40" oninput="syncRange('c-bp','c-bp-v');calc()">
+          <span class="range-val" id="c-bp-v">40</span>
+        </div>
+        <div class="input-row">
+          <label>Move Type</label>
+          <select class="calc-select" id="c-move-type" onchange="calc()">
+            <option>Strike</option><option>Flesh</option><option>Fire</option>
+            <option>Ice</option><option>Lightning</option><option>Earth</option>
+            <option>Holy</option><option>Shadow</option><option>Eldritch</option>
+            <option>Toxin</option><option>Spirit</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <label>Defender Type</label>
+          <select class="calc-select" id="c-def-type" onchange="calc()">
+            <option>Strike</option><option>Flesh</option><option>Fire</option>
+            <option>Ice</option><option>Lightning</option><option>Earth</option>
+            <option>Holy</option><option>Shadow</option><option>Eldritch</option>
+            <option>Toxin</option><option>Spirit</option>
+          </select>
+        </div>
+        <div style="margin-top:10px">
+          <button class="add-to-batch" onclick="addToBatch()">+ Add to Batch Test</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div>
+      <div class="result-box">
+        <div class="section-title">Damage Result</div>
+        <div class="result-main">
+          <div class="result-card base">
+            <div class="label">Base Damage</div>
+            <div class="value" id="r-base">—</div>
+            <div class="sub">no variance</div>
+          </div>
+          <div class="result-card min-v">
+            <div class="label">Minimum</div>
+            <div class="value" id="r-min">—</div>
+            <div class="sub">−15% roll</div>
+          </div>
+          <div class="result-card max-v">
+            <div class="label">Maximum</div>
+            <div class="value" id="r-max">—</div>
+            <div class="sub">+15% roll</div>
+          </div>
+        </div>
+
+        <div id="r-type-eff" class="type-eff-indicator normal">
+          <span class="eff-mult">1×</span>
+          <span>Normal damage against this type</span>
+        </div>
+
+        <div class="section-title" style="margin-top:16px">Formula Breakdown</div>
+        <div class="formula-breakdown" id="r-formula">
+          Set your inputs to see the calculation breakdown.
+        </div>
+
+        <div class="section-title" style="margin-top:16px">Quick Comparison</div>
+        <div id="r-comparison" style="font-size:12px;color:#7a6040;line-height:1.8"></div>
+      </div>
+
+      <div class="result-box" style="margin-top:16px">
+        <div class="section-title">Level Impact — Same Move, Different Levels</div>
+        <div id="r-level-bars"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     TAB 2: MOVE LIST
+────────────────────────────────────────────────────────── -->
+<div id="tab-moves" class="tab-panel">
+  <div class="moves-controls">
+    <input type="text" class="search-input" placeholder="Search moves…" oninput="filterMoves()" id="move-search">
+    <select class="filter-select" onchange="filterMoves()" id="type-filter">
+      <option value="">All Types</option>
+      <option>Strike</option><option>Flesh</option><option>Fire</option>
+      <option>Ice</option><option>Lightning</option><option>Earth</option>
+      <option>Holy</option><option>Shadow</option><option>Eldritch</option>
+      <option>Toxin</option><option>Spirit</option>
+    </select>
+    <select class="filter-select" onchange="filterMoves()" id="cat-filter">
+      <option value="">All Categories</option>
+      <option>Physical</option><option>Magic</option><option>Status</option><option>Spirit</option>
+    </select>
+    <select class="filter-select" onchange="filterMoves()" id="src-filter">
+      <option value="">All Sources</option>
+      <option value="Eldaria">Eldaria Original</option>
+      <option value="Adapted">Adapted from Gen 1</option>
+    </select>
+    <span class="move-count" id="move-count">143 moves</span>
+  </div>
+
+  <table class="moves-table" id="moves-table">
+    <thead>
+      <tr>
+        <th onclick="sortMoves('name')">#  Name <span class="sort-arrow">↕</span></th>
+        <th onclick="sortMoves('type')">Type <span class="sort-arrow">↕</span></th>
+        <th onclick="sortMoves('cat')">Category <span class="sort-arrow">↕</span></th>
+        <th onclick="sortMoves('power')">Power <span class="sort-arrow">↕</span></th>
+        <th onclick="sortMoves('acc')">Accuracy <span class="sort-arrow">↕</span></th>
+        <th>Effect</th>
+        <th onclick="sortMoves('src')">Source <span class="sort-arrow">↕</span></th>
+        <th>Test</th>
+      </tr>
+    </thead>
+    <tbody id="moves-tbody"></tbody>
+  </table>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     TAB 3: BATCH TESTER
+────────────────────────────────────────────────────────── -->
+<div id="tab-batch" class="tab-panel">
+  <div class="batch-controls">
+    <span style="color:#9a8060;font-size:13px">Add moves from the Calculator tab or pick presets:</span>
+    <button class="add-to-batch" onclick="loadPreset('starter')">Starter moves</button>
+    <button class="add-to-batch" onclick="loadPreset('legendary')">Legendary moves</button>
+    <button class="add-to-batch" onclick="loadPreset('all_types')">One per type</button>
+    <button class="clear-batch" onclick="clearBatch()">Clear all</button>
+  </div>
+
+  <div style="margin:12px 0;display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+    <div class="input-row" style="margin:0">
+      <label style="min-width:80px;color:#9a8060;font-size:12px">Attacker Lv</label>
+      <input type="range" class="range-input" id="b-lvl" min="1" max="120" value="100" oninput="syncRange('b-lvl','b-lvl-v');renderBatch()" style="width:120px">
+      <span class="range-val" id="b-lvl-v">100</span>
+    </div>
+    <div class="input-row" style="margin:0">
+      <label style="min-width:60px;color:#9a8060;font-size:12px">ATK</label>
+      <input type="range" class="range-input" id="b-atk" min="10" max="200" value="100" oninput="syncRange('b-atk','b-atk-v');renderBatch()" style="width:120px">
+      <span class="range-val" id="b-atk-v">100</span>
+    </div>
+    <div class="input-row" style="margin:0">
+      <label style="min-width:60px;color:#9a8060;font-size:12px">DEF</label>
+      <input type="range" class="range-input" id="b-def" min="10" max="200" value="100" oninput="syncRange('b-def','b-def-v');renderBatch()" style="width:120px">
+      <span class="range-val" id="b-def-v">100</span>
+    </div>
+    <div class="input-row" style="margin:0">
+      <label style="min-width:80px;color:#9a8060;font-size:12px">Type Mult</label>
+      <select class="calc-select" id="b-mult" onchange="renderBatch()" style="width:80px">
+        <option value="1">1× Normal</option>
+        <option value="2">2× Super</option>
+        <option value="0.5">½× Resist</option>
+        <option value="0">0× Immune</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="batch-grid" id="batch-grid">
+    <div style="color:#5a4020;font-size:13px;padding:20px">
+      No moves added yet. Use the Calculator tab to add moves, or click a preset above.
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     TAB 4: TYPE CHART
+────────────────────────────────────────────────────────── -->
+<div id="tab-typechart" class="tab-panel">
+  <p style="color:#9a8060;font-size:12px;margin-bottom:16px">
+    Row = attacking type · Column = defending type ·
+    <span style="color:#5dbe90">2×</span> super effective ·
+    <span style="color:#e05050">½</span> not very effective ·
+    <span style="color:#555">✗</span> immune
+  </p>
+  <div class="type-chart-wrap">
+    <table class="type-chart-table" id="type-chart-table"></table>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────
+     TAB 5: STATUS EFFECTS
+────────────────────────────────────────────────────────── -->
+<div id="tab-status" class="tab-panel">
+  <div class="status-grid" id="status-grid"></div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const TYPES = ["Strike","Flesh","Fire","Ice","Lightning","Earth","Holy","Shadow","Eldritch","Toxin","Spirit"];
+
+const TYPE_CHART = {
+  "Strike":    [1,2,1,1,1,0.5,0.5,1,1,1,0],
+  "Flesh":     [1,1,1,1,1,1,0.5,1,1,0.5,0.5],
+  "Fire":      [1,1,0.5,2,1,0.5,1,1,1,1,1],
+  "Ice":       [1,1,0.5,0.5,1,2,1,1,1,1,1],
+  "Lightning": [1,1,1,1,0.5,0,1,1,2,1,1],
+  "Earth":     [1,1,2,1,2,1,1,1,1,1,1],
+  "Holy":      [1,1,1,1,1,1,1,2,1,1,2],
+  "Shadow":    [1,1,1,1,1,1,0.5,0.5,1,1,2],
+  "Eldritch":  [1,1,1,1,0.5,1,0.5,2,0.5,1,1],
+  "Toxin":     [1,2,1,1,1,0.5,0.5,1,1,0.5,1],
+  "Spirit":    [0,1,1,1,1,1,1,1,1,1,0.5],
+};
+
+function getEff(atkType, defType) {
+  const row = TYPE_CHART[atkType];
+  if (!row) return 1;
+  const idx = TYPES.indexOf(defType);
+  return idx >= 0 ? row[idx] : 1;
+}
+
+const MOVES = [
+  // [Name, Type, Category, Power, Accuracy, Effect, Source]
+  ["Slash","Strike","Physical",70,100,"High critical hit chance.","Adapted"],
+  ["Iron Strike","Strike","Physical",40,100,"Basic reliable strike. Starter move.","Adapted"],
+  ["Rending Blow","Strike","Physical",80,75,"Heavy strike. May cause Bleeding status.","Adapted"],
+  ["Rapid Cut","Strike","Physical",18,85,"Hits 2–5 times in one turn.","Adapted"],
+  ["Counter","Strike","Physical",0,100,"When hit by Physical move, retaliates with double power.","Adapted"],
+  ["Dual Strike","Strike","Physical",30,100,"Hits twice in one turn.","Adapted"],
+  ["Shield Bash","Strike","Physical",65,85,"Deals damage and may Stun the target.","Adapted"],
+  ["Precision Strike","Strike","Physical",50,100,"No secondary effect — consistent damage.","Adapted"],
+  ["Reckless Charge","Strike","Physical",120,100,"User takes 1/3 recoil damage.","Adapted"],
+  ["Execute","Strike","Physical",0,90,"Instantly defeats targets below 20% HP.","Eldaria"],
+  ["War Cleave","Strike","Physical",100,90,"High critical hit chance.","Eldaria"],
+  ["Bone Crush","Strike","Physical",65,100,"May lower target's DEF by one stage.","Adapted"],
+  ["Final Charge","Strike","Physical",80,100,"Hits all enemies. Bonus damage per fallen ally this battle.","Eldaria"],
+  ["Bloodletting","Flesh","Physical",40,100,"Applies Bleed for 3 turns.","Eldaria"],
+  ["Iron Body","Flesh","Status",0,0,"Raises user's DEF by two stages.","Eldaria"],
+  ["Warcry","Flesh","Status",0,0,"Raises user's ATK by two stages. Generates Rage.","Eldaria"],
+  ["Scar Tissue","Flesh","Status",0,0,"User endures next hit at 1 HP regardless of damage.","Eldaria"],
+  ["Frenzy","Flesh","Physical",120,100,"Only usable in Frenzy state. Hits all enemies.","Eldaria"],
+  ["Body Slam","Flesh","Physical",85,100,"May Stun the target.","Adapted"],
+  ["Grapple","Flesh","Physical",15,85,"Traps target — deals damage for 4–5 turns.","Adapted"],
+  ["Headbutt","Flesh","Physical",70,100,"May cause Stun.","Adapted"],
+  ["Recoil Slam","Flesh","Physical",90,85,"User takes 1/4 recoil damage.","Adapted"],
+  ["Crush","Flesh","Physical",55,100,"Reliable — no secondary effect.","Adapted"],
+  ["Mountain Strike","Flesh","Physical",0,100,"Ignores a portion of target's DEF. Damage = user's STR.","Eldaria"],
+  ["Earthshaker","Flesh","Physical",80,100,"Deals damage and may lower target's SPD.","Eldaria"],
+  ["Ember","Fire","Magic",40,100,"May apply Burn.","Adapted"],
+  ["Hellfire","Fire","Magic",90,100,"May apply Burn.","Adapted"],
+  ["Inferno","Fire","Magic",110,85,"May apply Burn. High power, lower accuracy.","Adapted"],
+  ["Dragon's Breath","Fire","Magic",35,85,"Traps target in flames — damage over 4–5 turns.","Adapted"],
+  ["Fire Punch","Fire","Physical",75,100,"May apply Burn.","Adapted"],
+  ["Cinder Blast","Fire","Magic",65,100,"May lower target's ATK (scorched muscle).","Adapted"],
+  ["Ash Cloud","Fire","Status",0,100,"Lowers target's Accuracy by two stages.","Adapted"],
+  ["Immolate","Fire","Magic",120,100,"User takes 1/3 recoil. Guaranteed Burn on hit.","Eldaria"],
+  ["Hellbound","Fire","Magic",250,100,"User is defeated after use.","Eldaria"],
+  ["Sunfire Strike","Fire","Physical",80,100,"Only usable in Frenzy. Converts damage to Fire type.","Eldaria"],
+  ["Frost Lance","Ice","Magic",90,100,"May Freeze the target.","Adapted"],
+  ["Blizzard","Ice","Magic",110,70,"May Freeze the target.","Adapted"],
+  ["Ice Punch","Ice","Physical",75,100,"May Freeze the target.","Adapted"],
+  ["Frost Nova","Ice","Magic",65,100,"Hits all enemies. May Slow.","Adapted"],
+  ["Glacial Mist","Ice","Status",0,0,"Resets all stat changes for both sides.","Adapted"],
+  ["Winter's Edge","Ice","Magic",55,95,"High critical hit chance.","Adapted"],
+  ["Frozen Ground","Ice","Status",0,0,"Lowers SPD of all enemies by one stage.","Adapted"],
+  ["Permafrost","Ice","Magic",40,100,"May Freeze. Frozen targets cannot act.","Eldaria"],
+  ["Avalanche","Ice","Physical",60,100,"Power doubles if user was hit this turn.","Eldaria"],
+  ["Glacial Armour","Ice","Status",0,0,"Sharply raises user's DEF. Slows user by one stage.","Eldaria"],
+  ["Spark","Lightning","Magic",40,100,"May Paralyse the target.","Adapted"],
+  ["Chain Lightning","Lightning","Magic",90,100,"May Paralyse. Jumps to adjacent enemies for reduced damage.","Adapted"],
+  ["Storm Bolt","Lightning","Magic",110,70,"May Paralyse. High power, lower accuracy.","Adapted"],
+  ["Thunder Punch","Lightning","Physical",75,100,"May Paralyse.","Adapted"],
+  ["Static Field","Lightning","Status",0,90,"Paralyses the target.","Adapted"],
+  ["Lightning Wave","Lightning","Status",0,90,"Paralyses target. No direct damage.","Adapted"],
+  ["Volt Rush","Lightning","Physical",40,100,"Always moves first (high priority).","Adapted"],
+  ["Overcharge","Lightning","Magic",80,100,"User cannot move next turn (recharging).","Adapted"],
+  ["Arc Strike","Lightning","Physical",65,85,"May cause Stun.","Eldaria"],
+  ["Storm Kite","Lightning","Magic",60,0,"Never misses. Ignores Accuracy and Evasion.","Eldaria"],
+  ["Stone Throw","Earth","Physical",50,90,"No secondary effect.","Adapted"],
+  ["Rockslide","Earth","Physical",75,90,"May cause Stun.","Adapted"],
+  ["Earthquake","Earth","Physical",100,100,"Hits all combatants. Power doubles vs burrowing targets.","Adapted"],
+  ["Tremor","Earth","Physical",80,100,"May lower target's SPD.","Adapted"],
+  ["Fortify","Earth","Status",0,0,"Sharply raises user's DEF.","Adapted"],
+  ["Sand Blind","Earth","Status",0,100,"Lowers target's Accuracy.","Adapted"],
+  ["Stone Wall","Earth","Status",0,0,"Sharply raises user's DEF. User cannot move next turn.","Adapted"],
+  ["Boulder Hurl","Earth","Physical",140,90,"Charges turn 1. Attacks turn 2. World-found move.","Eldaria"],
+  ["Deep Roots","Earth","Status",0,0,"User becomes immovable. DEF +1 stage.","Eldaria"],
+  ["Axe Throw","Earth","Physical",60,90,"Ranged physical move. Barbarian world-found move.","Eldaria"],
+  ["Cave-In","Earth","Physical",80,100,"User burrows turn 1. Strikes on turn 2.","Adapted"],
+  ["Smite","Holy","Magic",40,100,"Basic Holy damage. Starter move for Holy types.","Eldaria"],
+  ["Sacred Flame","Holy","Magic",65,100,"May apply Burn (holy fire). Stronger in Holy Light.","Eldaria"],
+  ["Consecrate","Holy","Status",0,0,"Raises ATK and DEF of all allies by one stage.","Eldaria"],
+  ["Aura Burst","Holy","Magic",90,100,"Hits all enemies. Weaker outside Holy Light.","Eldaria"],
+  ["Last Rites","Holy","Status",0,0,"Restores 50% HP. Only usable once per battle.","Eldaria"],
+  ["Sanctuary","Holy","Status",0,0,"Creates Holy Light for 5 turns — boosts all Holy moves.","Eldaria"],
+  ["Divine Judgment","Holy","Magic",110,85,"Only lands full damage in Holy Light.","Eldaria"],
+  ["Purify","Holy","Status",0,0,"Removes all status effects from one ally.","Eldaria"],
+  ["Holy Shield","Holy","Status",0,0,"Halves damage from Magic moves for 5 turns.","Eldaria"],
+  ["Martyr's Strike","Holy","Physical",130,100,"User takes damage equal to half of what they deal.","Eldaria"],
+  ["Radiant Blade","Holy","Physical",75,100,"May Blind target — lowers Accuracy.","Eldaria"],
+  ["Shadow Strike","Shadow","Physical",60,100,"May cause Flinch.","Adapted"],
+  ["Void Rend","Shadow","Magic",65,100,"May lower target's SPD.","Adapted"],
+  ["Dark Pact","Shadow","Status",0,100,"Applies Void Curse — target cannot be healed for 3 turns.","Eldaria"],
+  ["Soul Drain","Shadow","Magic",80,100,"User recovers half the HP dealt as damage.","Adapted"],
+  ["Umbral Bind","Shadow","Status",0,100,"Traps target — cannot switch or flee for 4 turns.","Eldaria"],
+  ["Night Shroud","Shadow","Status",0,0,"Raises user's Evasion sharply.","Adapted"],
+  ["Death's Touch","Shadow","Magic",100,100,"Drains HP from target. Necromancer Essence move.","Eldaria"],
+  ["Nightmare","Shadow","Status",0,100,"Confuses the target.","Adapted"],
+  ["Shadow Step","Shadow","Status",0,0,"User becomes untargetable for 2 turns. Essence move.","Eldaria"],
+  ["Void Strike","Shadow","Physical",40,100,"Always moves first (high priority).","Eldaria"],
+  ["Corrupt","Shadow","Status",0,85,"Applies Corruption — target's ATK reduced each turn.","Eldaria"],
+  ["Consume","Shadow","Magic",0,100,"Deals damage equal to 50% of target's current HP.","Adapted"],
+  ["Mind Fracture","Eldritch","Magic",65,100,"May Confuse the target.","Adapted"],
+  ["Void Tendrils","Eldritch","Magic",50,90,"Hits 2–5 times. Each hit may Confuse.","Adapted"],
+  ["Ancient Dread","Eldritch","Status",0,80,"Lowers target's Accuracy and SPD by one stage each.","Adapted"],
+  ["Unravelling","Eldritch","Magic",90,100,"May lower target's Special DEF.","Adapted"],
+  ["Psychic Pulse","Eldritch","Magic",80,100,"Hits all enemies. May Confuse.","Adapted"],
+  ["Eldritch Surge","Eldritch","Magic",110,85,"High power. May lower target's DEF.","Eldaria"],
+  ["Dream Walk","Eldritch","Status",0,60,"Puts target to Sleep.","Adapted"],
+  ["Mimic","Eldritch","Status",0,0,"User copies the target's last used move.","Adapted"],
+  ["Madness","Eldritch","Status",0,55,"Confuses the target.","Adapted"],
+  ["Void Gaze","Eldritch","Status",0,100,"Sharply lowers target's SPD.","Eldaria"],
+  ["Forbidden Word","Eldritch","Magic",0,100,"Damage equals 150% of user's level. Ignores DEF.","Adapted"],
+  ["Chaos Bolt","Eldritch","Magic",80,100,"Randomly applies Burn, Freeze, Paralyse, or Confuse.","Adapted"],
+  ["Poison Sting","Toxin","Physical",15,100,"May Poison the target.","Adapted"],
+  ["Venom Spit","Toxin","Magic",65,100,"May Poison the target.","Adapted"],
+  ["Plague","Toxin","Status",0,90,"Badly Poisons the target (damage increases each turn).","Adapted"],
+  ["Acid Bath","Toxin","Magic",40,100,"May lower target's DEF (acid corrodes armour).","Adapted"],
+  ["Toxic Cloud","Toxin","Status",0,75,"Poisons the target.","Adapted"],
+  ["Contagion","Toxin","Status",0,90,"Spreads Poison from one target to all enemies.","Eldaria"],
+  ["Antidote Aura","Toxin","Status",0,0,"Removes Poison from all allies. Raises their DEF.","Eldaria"],
+  ["Leech Barb","Toxin","Physical",80,100,"User recovers half the HP inflicted.","Adapted"],
+  ["Venomous Strike","Toxin","Physical",40,100,"Applies Poison. Hits twice.","Adapted"],
+  ["Blight","Toxin","Magic",30,70,"Low accuracy. If it hits, applies Badly Poisoned immediately.","Eldaria"],
+  ["Ancestral Call","Spirit","Spirit",0,0,"Raises ATK and SPD of all allies by one stage.","Eldaria"],
+  ["Spirit Surge","Spirit","Magic",80,100,"Deals Spirit damage. May lower target's DEF.","Eldaria"],
+  ["Echo of the Fallen","Spirit","Status",0,0,"Raises all stats by one stage if an ally has fainted.","Eldaria"],
+  ["Death's Vigil","Spirit","Status",0,0,"User endures next fatal hit. Activates once per battle.","Eldaria"],
+  ["Soul Bind","Spirit","Spirit",0,100,"Inflicts damage equal to user's level. Spirit type.","Adapted"],
+  ["Haunting","Spirit","Status",0,100,"Confuses the target. May cause Flinch.","Adapted"],
+  ["Bone Shield","Spirit","Status",0,0,"Absorbs the next hit entirely. Shatters after one use.","Eldaria"],
+  ["Wail of the Dead","Spirit","Status",0,85,"Sharply lowers target's DEF.","Adapted"],
+  ["Grave Toll","Spirit","Magic",0,100,"Damage = fallen allies × 30. Minimum 30.","Eldaria"],
+  ["Raise","Spirit","Status",0,0,"Revives one fainted ally with 50% HP. Necromancer only.","Eldaria"],
+  ["Recover","Holy","Status",0,0,"User restores half their max HP.","Adapted"],
+  ["Harden","Flesh","Status",0,0,"Raises user's DEF by one stage.","Adapted"],
+  ["Sharpen","Strike","Status",0,0,"Raises user's ATK by one stage.","Adapted"],
+  ["Focus","Strike","Status",0,0,"Raises critical hit chance sharply for 3 turns.","Adapted"],
+  ["War Cry","Flesh","Status",0,0,"Raises ATK of all allies by one stage.","Adapted"],
+  ["Intimidate","Shadow","Status",0,100,"Lowers target's ATK by one stage.","Adapted"],
+  ["Last Stand","Flesh","Status",0,0,"ATK and DEF surge when HP is critically low. Once per battle.","Eldaria"],
+  ["Bind","Flesh","Physical",15,85,"Traps target — damage each turn for 4–5 turns.","Adapted"],
+  ["Agility","Strike","Status",0,0,"Sharply raises user's SPD.","Adapted"],
+  ["Disable","Shadow","Status",0,100,"Target cannot use their last-used move for 3 turns.","Adapted"],
+  ["Smokescreen","Shadow","Status",0,100,"Lowers target's Accuracy by one stage.","Adapted"],
+  ["Taunt","Shadow","Status",0,100,"Target can only use Physical moves for 3 turns.","Adapted"],
+  ["Roar","Flesh","Status",0,0,"Forces target to flee or switch. Fails on bosses.","Adapted"],
+  ["Camouflage","Shadow","Status",0,0,"Sharply raises user's Evasion.","Eldaria"],
+  ["Track","Strike","Status",0,0,"Marks target — reveals weakness and grants +20% damage.","Eldaria"],
+  ["Volley","Strike","Physical",15,85,"Fires arrows hitting 2–5 times in one turn.","Adapted"],
+  ["Hawkeye","Strike","Status",0,0,"Next attack ignores Accuracy, DEF, and range penalties.","Eldaria"],
+  ["Eagle Eye","Strike","Status",0,0,"All attacks hit every enemy for 2 turns. Essence move.","Eldaria"],
+  ["Arcane Surge","Eldritch","Status",0,0,"All spells free and ignore resistances for 2 turns. Essence.","Eldaria"],
+  ["Immovable","Earth","Status",0,0,"DEF beyond cap. Unstunnable for 2 turns. Essence move.","Eldaria"],
+  ["Ancestral Fury","Flesh","Status",0,0,"Fills Rage. Triggers Frenzy with no DEF penalty. Essence.","Eldaria"],
+  ["Soul Harvest","Spirit","Status",0,0,"Each kill grants +5% to highest stat permanently. Essence.","Eldaria"],
+];
+
+const STATUS_EFFECTS = [
+  ["Burn","Fire","Deals 1/8 max HP damage each turn. Reduces ATK by 25%."],
+  ["Poison","Toxin","Deals 1/8 max HP damage each turn. Does not reduce stats."],
+  ["Bad Poison","Toxin","Damage increases each turn: 1/16, 1/8, 3/16, 1/4… up to 1/2 max HP per turn."],
+  ["Freeze","Ice","Unit cannot act. Thaws when hit by Fire move or after 1–5 turns."],
+  ["Paralyse","Lightning","SPD reduced by 50%. 25% chance of failing to act each turn."],
+  ["Sleep","Eldritch","Unit cannot act for 1–5 turns. Wakes when hit."],
+  ["Stun","Strike","Unit skips next turn only. Does not reduce SPD."],
+  ["Confuse","Eldritch","25% chance each turn to hurt itself instead of acting."],
+  ["Bleed","Strike","Deals 1/16 HP per turn. Stacks up to 3 times. Physical moves only."],
+  ["Void Curse","Shadow","Unit cannot be healed or restored by any means for 3 turns."],
+  ["Corruption","Shadow","ATK reduced by 1 stage per turn for 3 turns."],
+  ["Slow","Earth","SPD reduced by one stage. Different from Paralyse — stat change, not chance."],
+  ["Blind","Holy","Accuracy reduced by two stages for 3 turns."],
+  ["Flinch","Strike","Unit cannot act this turn only. Can only be applied on the first hit."],
+];
+
+// ── CORE FORMULA ─────────────────────────────────────────────────────────────
+function damage(atkLvl, atkStat, bp, defStat, typeMult, critMult) {
+  if (bp === 0) return 0;
+  const base = (2 * atkLvl / 5 + 2) * bp * (atkStat / defStat) / 50 + 2;
+  return base * typeMult * critMult;
+}
+
+// ── CALCULATOR ────────────────────────────────────────────────────────────────
+function syncRange(id, vid) {
+  document.getElementById(vid).textContent = document.getElementById(id).value;
+}
+
+function loadMove() {
+  const sel = document.getElementById('c-move-pick');
+  const idx = parseInt(sel.value);
+  if (isNaN(idx)) return;
+  const m = MOVES[idx];
+  document.getElementById('c-move-name').value = m[0];
+  document.getElementById('c-bp').value = m[3];
+  document.getElementById('c-bp-v').textContent = m[3];
+  document.getElementById('c-move-type').value = m[1];
+}
+
+function calc() {
+  const atkLvl  = +document.getElementById('c-atk-lvl').value;
+  const atkStat = +document.getElementById('c-atk-stat').value;
+  const defStat = +document.getElementById('c-def-stat').value;
+  const bp      = +document.getElementById('c-bp').value;
+  const critMult= +document.getElementById('c-crit').value;
+  const movType = document.getElementById('c-move-type').value;
+  const defType = document.getElementById('c-def-type').value;
+  const typeMult = getEff(movType, defType);
+
+  const base = damage(atkLvl, atkStat, bp, defStat, typeMult, critMult);
+  const min  = base * 0.85;
+  const max  = base * 1.15;
+
+  document.getElementById('r-base').textContent = bp === 0 ? '—' : base.toFixed(1);
+  document.getElementById('r-min').textContent  = bp === 0 ? '—' : min.toFixed(1);
+  document.getElementById('r-max').textContent  = bp === 0 ? '—' : max.toFixed(1);
+
+  // Type effectiveness indicator
+  const effEl = document.getElementById('r-type-eff');
+  if (typeMult === 2)   { effEl.className='type-eff-indicator super';   effEl.innerHTML='<span class="eff-mult">2×</span><span>Super effective!</span>'; }
+  else if (typeMult === 0.5) { effEl.className='type-eff-indicator resisted'; effEl.innerHTML='<span class="eff-mult">½×</span><span>Not very effective…</span>'; }
+  else if (typeMult === 0)   { effEl.className='type-eff-indicator immune';  effEl.innerHTML='<span class="eff-mult">0×</span><span>Immune — no damage.</span>'; }
+  else { effEl.className='type-eff-indicator normal'; effEl.innerHTML='<span class="eff-mult">1×</span><span>Normal damage.</span>'; }
+
+  // Formula breakdown
+  const step1 = (2 * atkLvl / 5 + 2);
+  const step2 = step1 * bp;
+  const step3 = step2 * (atkStat / defStat);
+  const step4 = step3 / 50 + 2;
+  const step5 = step4 * typeMult;
+  const step6 = step5 * critMult;
+
+  document.getElementById('r-formula').innerHTML = bp === 0
+    ? '<span class="step">Status move — no direct damage formula applies.</span>'
+    : `<span class="step">Step 1:</span> (2 × ${atkLvl} ÷ 5 + 2) = <span class="result">${step1.toFixed(2)}</span>
+<span class="step">Step 2:</span> × Base Power ${bp} = <span class="result">${step2.toFixed(2)}</span>
+<span class="step">Step 3:</span> × (ATK ${atkStat} ÷ DEF ${defStat}) = <span class="result">${step3.toFixed(2)}</span>
+<span class="step">Step 4:</span> ÷ 50 + 2 = <span class="result">${step4.toFixed(2)}</span>
+<span class="step">Step 5:</span> × Type ${typeMult}× = <span class="result">${step5.toFixed(2)}</span>
+<span class="step">Step 6:</span> × Crit ${critMult}× = <span class="result">${step6.toFixed(1)}</span>
+<span class="step">Variance:</span> ${(step6*0.85).toFixed(1)} – ${(step6*1.15).toFixed(1)}`;
+
+  // Comparison
+  const noType = damage(atkLvl, atkStat, bp, defStat, 1, 1);
+  document.getElementById('r-comparison').innerHTML = bp === 0 ? '' :
+    `No type bonus: <b>${noType.toFixed(1)}</b> &nbsp;|&nbsp; ` +
+    `Super effective: <b>${(noType*2).toFixed(1)}</b> &nbsp;|&nbsp; ` +
+    `Resisted: <b>${(noType*0.5).toFixed(1)}</b> &nbsp;|&nbsp; ` +
+    `Crit: <b>${(noType*typeMult*1.5).toFixed(1)}</b>`;
+
+  // Level bars
+  const levels = [1,20,40,60,80,100,120];
+  const maxDmg = damage(120, atkStat, bp, defStat, typeMult, critMult);
+  let barsHTML = '';
+  levels.forEach(lv => {
+    const d = damage(lv, atkStat, bp, defStat, typeMult, critMult);
+    const pct = maxDmg > 0 ? (d / maxDmg * 100) : 0;
+    barsHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="color:#8a7050;font-size:11px;min-width:50px">Lv ${lv}</span>
+      <div style="flex:1;height:6px;background:#1e1508;border-radius:3px">
+        <div style="width:${pct}%;height:100%;background:#c4a882;border-radius:3px"></div>
+      </div>
+      <span style="color:#c4a882;font-size:11px;min-width:40px;text-align:right">${d.toFixed(1)}</span>
+    </div>`;
+  });
+  document.getElementById('r-level-bars').innerHTML = bp === 0 ? '<span style="color:#5a4020;font-size:12px">Status move</span>' : barsHTML;
+}
+
+// ── MOVE LIST ─────────────────────────────────────────────────────────────────
+let sortKey = 'name', sortDir = 1;
+
+function typeBadge(t) {
+  return `<span class="type-badge t-${t.toLowerCase()}">${t}</span>`;
+}
+function catBadge(c) {
+  const cls = {Physical:'cat-physical',Magic:'cat-magic',Status:'cat-status',Spirit:'cat-spirit'}[c]||'cat-status';
+  return `<span class="${cls}">${c}</span>`;
+}
+
+function renderMovesTable(filtered) {
+  const tbody = document.getElementById('moves-tbody');
+  const count = filtered.length;
+  document.getElementById('move-count').textContent = `${count} move${count!==1?'s':''}`;
+  tbody.innerHTML = filtered.map((m,i) => {
+    const idx = MOVES.indexOf(m);
+    const isE = m[6]==='Eldaria';
+    return `<tr class="${isE?'eldaria-move':''}">
+      <td><span class="move-name" onclick="testMove(${idx})">${m[0]}</span></td>
+      <td>${typeBadge(m[1])}</td>
+      <td>${catBadge(m[2])}</td>
+      <td>${m[3]>0?`<span class="power-val">${m[3]}</span>`:`<span class="power-dash">—</span>`}</td>
+      <td><span class="acc-val">${m[4]>0?m[4]+'%':'—'}</span></td>
+      <td><span class="effect-text">${m[5]}</span></td>
+      <td>${isE?'<span class="eldaria-badge">Eldaria</span>':'<span style="color:#5a4020;font-size:10px">Adapted</span>'}</td>
+      <td><button class="add-to-batch" onclick="addMoveIdx(${idx})" style="padding:3px 8px;font-size:10px">Test</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterMoves() {
+  const q = document.getElementById('move-search').value.toLowerCase();
+  const t = document.getElementById('type-filter').value;
+  const c = document.getElementById('cat-filter').value;
+  const s = document.getElementById('src-filter').value;
+  let filtered = MOVES.filter(m =>
+    (!q || m[0].toLowerCase().includes(q) || m[5].toLowerCase().includes(q)) &&
+    (!t || m[1]===t) && (!c || m[2]===c) && (!s || m[6]===s)
+  );
+  filtered = sortFiltered(filtered);
+  renderMovesTable(filtered);
+}
+
+function sortFiltered(arr) {
+  return [...arr].sort((a,b) => {
+    let va,vb;
+    if (sortKey==='name') { va=a[0]; vb=b[0]; }
+    else if (sortKey==='type') { va=a[1]; vb=b[1]; }
+    else if (sortKey==='cat') { va=a[2]; vb=b[2]; }
+    else if (sortKey==='power') { va=a[3]; vb=b[3]; }
+    else if (sortKey==='acc') { va=a[4]; vb=b[4]; }
+    else if (sortKey==='src') { va=a[6]; vb=b[6]; }
+    else { va=a[0]; vb=b[0]; }
+    if (typeof va === 'string') return va.localeCompare(vb)*sortDir;
+    return (va-vb)*sortDir;
+  });
+}
+
+function sortMoves(key) {
+  if (sortKey===key) sortDir*=-1; else { sortKey=key; sortDir=1; }
+  filterMoves();
+}
+
+function testMove(idx) {
+  document.getElementById('c-move-pick').value = idx;
+  loadMove();
+  calc();
+  showTab('calculator');
+}
+
+// ── BATCH TESTER ─────────────────────────────────────────────────────────────
+let batchMoves = [];
+
+function addToBatch() {
+  const bp    = +document.getElementById('c-bp').value;
+  const name  = document.getElementById('c-move-name').value;
+  const type  = document.getElementById('c-move-type').value;
+  const crit  = document.getElementById('c-crit').value;
+  batchMoves.push({name, type, bp, crit:+crit});
+  renderBatch();
+  showTab('batch');
+}
+
+function addMoveIdx(idx) {
+  const m = MOVES[idx];
+  batchMoves.push({name:m[0], type:m[1], bp:m[3], crit:1});
+  renderBatch();
+  showTab('batch');
+}
+
+function clearBatch() { batchMoves=[]; renderBatch(); }
+
+function loadPreset(p) {
+  const presets = {
+    starter: [
+      {name:'Iron Strike',type:'Strike',bp:40,crit:1},
+      {name:'Ember',type:'Fire',bp:40,crit:1},
+      {name:'Spark',type:'Lightning',bp:40,crit:1},
+      {name:'Smite',type:'Holy',bp:40,crit:1},
+      {name:'Poison Sting',type:'Toxin',bp:15,crit:1},
+    ],
+    legendary: [
+      {name:'Final Charge',type:'Strike',bp:80,crit:1},
+      {name:'Boulder Hurl',type:'Earth',bp:140,crit:1},
+      {name:'Divine Judgment',type:'Holy',bp:110,crit:1},
+      {name:'Hellbound',type:'Fire',bp:250,crit:1},
+      {name:'Immolate',type:'Fire',bp:120,crit:1},
+      {name:'Martyr\'s Strike',type:'Holy',bp:130,crit:1},
+    ],
+    all_types: [
+      {name:'Slash',type:'Strike',bp:70,crit:1},
+      {name:'Body Slam',type:'Flesh',bp:85,crit:1},
+      {name:'Hellfire',type:'Fire',bp:90,crit:1},
+      {name:'Frost Lance',type:'Ice',bp:90,crit:1},
+      {name:'Chain Lightning',type:'Lightning',bp:90,crit:1},
+      {name:'Earthquake',type:'Earth',bp:100,crit:1},
+      {name:'Aura Burst',type:'Holy',bp:90,crit:1},
+      {name:'Soul Drain',type:'Shadow',bp:80,crit:1},
+      {name:'Unravelling',type:'Eldritch',bp:90,crit:1},
+      {name:'Venom Spit',type:'Toxin',bp:65,crit:1},
+      {name:'Spirit Surge',type:'Spirit',bp:80,crit:1},
+    ],
+  };
+  batchMoves = presets[p] || [];
+  renderBatch();
+}
+
+function renderBatch() {
+  const lvl  = +document.getElementById('b-lvl').value;
+  const atk  = +document.getElementById('b-atk').value;
+  const def  = +document.getElementById('b-def').value;
+  const mult = +document.getElementById('b-mult').value;
+  const grid = document.getElementById('batch-grid');
+
+  if (!batchMoves.length) {
+    grid.innerHTML='<div style="color:#5a4020;font-size:13px;padding:20px">No moves. Use presets or add from the Calculator.</div>';
+    return;
+  }
+
+  // Find max damage for bar scaling
+  const damages = batchMoves.map(m => damage(lvl,atk,m.bp,def,mult,m.crit));
+  const maxD = Math.max(...damages, 1);
+
+  grid.innerHTML = batchMoves.map((m,i) => {
+    const d = damages[i];
+    const pct = d / maxD * 100;
+    return `<div class="batch-card">
+      <div class="batch-card-top" style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div class="move-title">${m.name}</div>
+          <div class="move-meta">${typeBadge(m.type)}${m.bp>0?`<span style="color:#7a6040;font-size:10px">BP ${m.bp}</span>`:''}</div>
+        </div>
+        <button onclick="batchMoves.splice(${i},1);renderBatch()" style="background:none;border:none;color:#5a4020;cursor:pointer;font-size:16px;padding:0">×</button>
+      </div>
+      <div class="batch-bar">
+        <div class="batch-bar-fill" style="width:${pct}%;background:#c4a882"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span class="batch-dmg">${m.bp===0?'Status':d.toFixed(1)}</span>
+        ${m.bp>0?`<span class="batch-range">${(d*0.85).toFixed(1)} – ${(d*1.15).toFixed(1)}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TYPE CHART ────────────────────────────────────────────────────────────────
+function renderTypeChart() {
+  const table = document.getElementById('type-chart-table');
+  let html = '<tr><th></th>' + TYPES.map(t => `<th>${typeBadge(t)}</th>`).join('') + '</tr>';
+  TYPES.forEach(atk => {
+    html += `<tr><th class="row-header">${typeBadge(atk)}</th>`;
+    TYPES.forEach(def => {
+      const eff = getEff(atk, def);
+      if (eff===2)   html += `<td class="eff-2x">2×</td>`;
+      else if (eff===0.5) html += `<td class="eff-half">½</td>`;
+      else if (eff===0)   html += `<td class="eff-0x">✗</td>`;
+      else html += `<td class="eff-1x">·</td>`;
+    });
+    html += '</tr>';
+  });
+  table.innerHTML = html;
+}
+
+// ── STATUS EFFECTS ────────────────────────────────────────────────────────────
+function renderStatus() {
+  const grid = document.getElementById('status-grid');
+  grid.innerHTML = STATUS_EFFECTS.map(([name, type, effect]) => `
+    <div class="status-card">
+      <div class="status-name">${name}</div>
+      <div class="status-type">${typeBadge(type)}</div>
+      <div class="status-effect">${effect}</div>
+    </div>
+  `).join('');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  const map={calculator:0,moves:1,batch:2,typechart:3,status:4};
+  document.querySelectorAll('.tab-btn')[map[id]].classList.add('active');
+}
+
+// ── MOVE PICKER POPULATION ────────────────────────────────────────────────────
+function populateMovePicker() {
+  const sel = document.getElementById('c-move-pick');
+  MOVES.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${m[0]} (${m[1]}, BP ${m[3]||'—'})`;
+    sel.appendChild(opt);
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+populateMovePicker();
+filterMoves();
+renderTypeChart();
+renderStatus();
+calc();
+renderBatch();
+</script>
+</body>
+</html>
